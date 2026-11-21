@@ -1,0 +1,535 @@
+/* ==========================================================================
+   DESIGN GLOBAL & AMBIANCE BLUE-NIGHT GLASSMORPHISM
+   ========================================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    background: radial-gradient(circle at top, #112240 0%, #060913 100%);
+    color: #FFFFFF;
+    font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+#loginScreen {
+    position: relative;
+    background: url('/images/gamo.png') no-repeat center center fixed, radial-gradient(circle at top, #112240 0%, #060913 100%);
+    background-size: contain, cover;
+}
+
+#loginScreen .booking-card, 
+#loginScreen .container {
+    background: rgba(17, 25, 40, 0.82);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 22px;
+}
+
+#loginScreen .logo-glow,
+#loginScreen h1,
+#loginScreen p,
+#loginScreen form,
+#loginScreen div {
+    position: relative;
+    z-index: 2;
+}
+
+.container {
+    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.logo-glow {
+    display: inline-block;
+    padding: 6px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #00A8FF, #FFB800);
+    box-shadow: 0 0 30px rgba(0, 168, 255, 0.45);
+    margin-bottom: 20px;
+    animation: pulseGlow 3s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 20px rgba(0, 168, 255, 0.3); }
+    100% { box-shadow: 0 0 35px rgba(255, 184, 0, 0.5); }
+}
+
+.logo-img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    border-radius: 22px;
+    display: block;
+    background-color: #0D0D0D;
+}
+
+h1 {
+    font-size: 2.8rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+h1 span {
+    color: #FFB800;
+}
+
+p {
+    font-size: 1.1rem;
+    color: #94A3B8;
+    margin-bottom: 35px;
+    font-weight: 300;
+}
+
+/* BOUTONS AVEC EFFET DE LUMIÈRE RASANTE (SHIMMER) */
+.btn-action {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0056D2 0%, #00A8FF 100%);
+    color: #FFFFFF;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 35px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    box-shadow: 0 8px 20px rgba(0, 168, 255, 0.3);
+}
+
+.btn-action::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: rotate(25deg);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.btn-action:hover::after {
+    opacity: 1;
+    left: 125%;
+    transition: left 0.7s ease-in-out;
+}
+
+.btn-action:hover {
+    background: linear-gradient(135deg, #FFB800, #e0a100);
+    color: #0D0D0D;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(255, 184, 0, 0.5);
+}
+
+.btn-pdf {
+    background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4) !important;
+    margin-bottom: 10px;
+}
+
+.btn-whatsapp {
+    background: linear-gradient(135deg, #25D366, #1ebe57) !important;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4) !important;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.btn-admin-access {
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: #94A3B8;
+    padding: 9px 18px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-access:hover {
+    border-color: #FFB800;
+    color: #FFB800;
+    background-color: rgba(255, 184, 0, 0.05);
+}
+
+.action-buttons-group {
+    margin-top: 15px;
+}
+
+.booking-card {
+    background: rgba(17, 25, 40, 0.82);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 30px;
+    border-radius: 22px;
+    text-align: left;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.receipt-card {
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.booking-card h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #FFFFFF;
+    text-align: center;
+    font-weight: 600;
+}
+
+.receipt-subtitle, .notice {
+    font-size: 0.82rem;
+    color: #FFB800;
+    background-color: rgba(255, 184, 0, 0.08);
+    border-left: 4px solid #FFB800;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    text-align: left;
+    line-height: 1.4;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: #CBD5E1;
+    font-weight: 500;
+}
+
+/* CARTES D'ÉVÉNEMENTS (PHOTOS NETTES ET LUMINEUSES) */
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.event-card {
+    position: relative;
+    height: 105px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.event-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 15, 28, 0.2);
+    backdrop-filter: blur(0px);
+    z-index: 1;
+    transition: background 0.3s ease;
+}
+
+.event-card:hover::before {
+    background: rgba(10, 15, 28, 0.1);
+}
+
+.event-card.active {
+    border-color: #FFB800;
+    background-color: rgba(255, 184, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 184, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.event-card .svg-icon, 
+.event-card .event-name {
+    position: relative;
+    z-index: 2;
+}
+
+.svg-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: #FFB800;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.3s ease, stroke 0.3s ease;
+}
+
+.event-card:hover .svg-icon svg {
+    stroke: #ffffff;
+    transform: scale(1.1);
+}
+
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    40% { transform: scale(1); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.pulse-heart svg {
+    fill: rgba(255, 184, 0, 0.2);
+    animation: heartbeat 1.5s infinite ease-in-out;
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.95); }
+}
+
+.flicker-flame svg {
+    fill: #FFB800;
+    animation: flicker 1s infinite alternate ease-in-out;
+}
+
+.event-name {
+    font-size: 0.85rem;
+    color: #FFFFFF;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95);
+    margin-top: 4px;
+}
+
+/* CARTES DE PRESTATAIRES ARTISTIQUES PRO */
+.artist-card-pro {
+    background: rgba(26, 35, 50, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.artist-card-pro:hover {
+    border-color: #00A8FF;
+    background: rgba(30, 41, 59, 0.85);
+    transform: translateY(-2px);
+}
+
+.artist-card-pro.active {
+    border-color: #FFB800;
+    background: rgba(255, 184, 0, 0.12);
+    box-shadow: 0 0 15px rgba(255, 184, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.artist-icon-badge {
+    font-size: 1.6rem;
+    background: rgba(255, 184, 0, 0.15);
+    padding: 8px 10px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.artist-info-box h4 {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.artist-info-box span {
+    font-size: 0.72rem;
+    color: #94A3B8;
+}
+
+/* PAIEMENT FINTECH 16:9 */
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.payment-card {
+    background-color: #161616;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 0 !important;
+    height: 115px !important;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+    transition: transform 0.35s ease;
+}
+
+.payment-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -75%;
+    width: 50%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: rotate(25deg);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.payment-card:hover::after {
+    opacity: 1;
+    left: 125%;
+    transition: left 0.8s ease-in-out, opacity 0.3s ease;
+}
+
+.vodacom-card.active { border-color: #e60000; box-shadow: 0 0 22px rgba(230, 0, 0, 0.55); }
+.airtel-card.active { border-color: #ff1e1e; box-shadow: 0 0 22px rgba(255, 30, 30, 0.55); }
+.orange-card.active { border-color: #ff6600; box-shadow: 0 0 22px rgba(255, 102, 0, 0.55); }
+.card-card.active { border-color: #FFB800; box-shadow: 0 0 22px rgba(255, 184, 0, 0.55); }
+
+.form-group input, .form-select {
+    width: 100%;
+    padding: 13px 15px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(13, 17, 23, 0.8);
+    color: #FFFFFF;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.boutique-card { max-height: 85vh; overflow-y: auto; }
+.option-item {
+    background-color: rgba(26, 35, 50, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+}
+.option-header label { display: flex; align-items: center; color: #FFFFFF; font-size: 0.9rem; cursor: pointer; gap: 12px; }
+.option-checkbox { width: 18px; height: 18px; accent-color: #00A8FF; cursor: pointer; }
+.price-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.1); }
+.price-pill { background-color: rgba(13, 17, 23, 0.8); border: 2px solid rgba(255, 255, 255, 0.1); color: #CBD5E1; padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; }
+.price-pill.active { background-color: rgba(40, 167, 69, 0.15); border-color: #28a745; color: #28a745; }
+
+.recap-content { background-color: rgba(26, 35, 50, 0.5); border: 2px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 16px; margin-bottom: 20px; }
+.receipt-box { border-color: #00A8FF; box-shadow: 0 0 20px rgba(0, 168, 255, 0.25); }
+.recap-divider { height: 1px; background-color: rgba(255, 255, 255, 0.1); margin: 12px 0; }
+.touching-message { background-color: rgba(0, 114, 206, 0.08); border-left: 4px solid #00A8FF; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; text-align: left; }
+.touching-message p { margin: 5px 0; font-size: 0.88rem; color: #E2E8F0; }
+
+.chatbot-container { background-color: rgba(26, 35, 50, 0.5); border: 2px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 12px; margin-bottom: 15px; text-align: left; }
+.chatbot-header { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; margin-bottom: 8px; }
+.chatbot-title { color: #FFB800; font-weight: 600; font-size: 0.88rem; }
+.chatbot-messages { max-height: 120px; overflow-y: auto; font-size: 0.8rem; margin-bottom: 8px; display: flex; flex-direction: column; gap: 6px; }
+.bot-msg { background-color: rgba(0, 114, 206, 0.15); border-left: 3px solid #00A8FF; padding: 6px 10px; border-radius: 6px; color: #E2E8F0; }
+.user-msg { background-color: rgba(255, 184, 0, 0.15); border-right: 3px solid #FFB800; padding: 6px 10px; border-radius: 6px; text-align: right; color: #E2E8F0; }
+.chatbot-input-area { display: flex; gap: 6px; }
+.chatbot-input-area input { flex: 1; padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(13, 17, 23, 0.8); color: #FFFFFF; font-size: 0.8rem; }
+.btn-chat-send { background-color: #00A8FF; color: #FFFFFF; border: none; padding: 0 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+.transport-box { background-color: rgba(255, 184, 0, 0.08); border: 2px solid #FFB800; border-radius: 14px; padding: 15px; margin-bottom: 15px; }
+.transport-warning-title { color: #FFB800; font-weight: 600; font-size: 0.95rem; margin-bottom: 5px; }
+.transport-warning-text { color: #CBD5E1; font-size: 0.82rem; line-height: 1.5; margin-bottom: 12px; }
+.transport-call-link { color: #FFB800; font-weight: 700; text-decoration: underline; }
+.transport-checkbox-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: #FFFFFF; font-size: 0.85rem; }
+
+.artist-alert { background-color: rgba(220, 53, 69, 0.12); border-left: 4px solid #dc3545; color: #ff6b6b; padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; margin-top: 15px; text-align: left; }
+.success-icon { font-size: 3rem; margin-bottom: 10px; text-align: center; }
+
+.summary-box { background-color: rgba(13, 17, 23, 0.8); border: 2px solid rgba(255, 255, 255, 0.08); padding: 15px; border-radius: 14px; margin: 20px 0; text-align: center; }
+.summary-box p { margin: 6px 0; font-size: 0.95rem; color: #CBD5E1; }
+.summary-box span { font-weight: 700; color: #FFB800; }
+.deposit-text { font-size: 0.95rem; color: #00A8FF !important; }
+
+.admin-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+.admin-content { background-color: #111928; border: 2px solid #00A8FF; border-radius: 20px; padding: 25px; width: 90%; max-width: 550px; max-height: 85vh; overflow-y: auto; text-align: left; }
+.admin-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+.admin-header h2 { font-size: 1.1rem; color: #FFB800; margin: 0; }
+.btn-close-admin { background: transparent; border: none; color: #FFFFFF; font-size: 1.2rem; cursor: pointer; }
+.admin-nav-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+.reservations-container { max-height: 48vh; overflow-y: auto; background-color: rgba(13, 17, 23, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 12px; }
+
+.client-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 10px; }
+.client-header h2 { margin: 0; font-size: 1.2rem; color: #FFB800; }
+.back-btn { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #CBD5E1; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+.client-profile-card { background: rgba(26, 35, 50, 0.5); border-radius: 14px; padding: 15px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-left: 5px solid #FFB800; }
+.client-avatar { font-size: 2.2rem; background: rgba(255, 184, 0, 0.1); padding: 8px 14px; border-radius: 50%; }
+.client-info h3 { margin: 0 0 5px 0; color: #FFFFFF; font-size: 1.1rem; }
+.client-info p { margin: 2px 0; font-size: 0.85rem; color: #94A3B8; }
+.badge-gold { background: #FFB800; color: #0D0D0D; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+.client-section-title { font-size: 1rem; font-weight: 600; margin-bottom: 10px; color: #00A8FF; }
+.client-orders-container { display: flex; flex-direction: column; gap: 10px; max-height: 40vh; overflow-y: auto; }
+.order-item-card { background: rgba(26, 35, 50, 0.5); padding: 12px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08); }
+.no-orders-msg { text-align: center; color: #777; font-style: italic; padding: 15px; font-size: 0.85rem; }
+
+.worker-widget-section { background: rgba(26, 35, 50, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 15px; }
+.worker-widget-section h3 { font-size: 1rem; color: #FFB800; margin-top: 0; margin-bottom: 12px; text-align: center; }
+.watch-timer-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+.time-box { background: rgba(13, 17, 23, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 5px; border-radius: 8px; }
+.time-box span { display: block; font-size: 1.3rem; font-weight: 700; color: #28a745; }
+.time-box small { font-size: 0.7rem; color: #888; text-transform: uppercase; }
+.signature-canvas-wrapper { background: rgba(13, 17, 23, 0.8); border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; display: flex; justify-content: center; align-items: center; padding: 5px; }
+#signatureCanvas { background-color: transparent; cursor: crosshair; touch-action: none; width: 100%; max-width: 480px; height: 150px; }
+/* =========================================================
+   VIDÉO D'ARRIÈRE-PLAN (À PARTIR DE LA 2ÈME PAGE UNIQUEMENT)
+   ========================================================= */
+
+/* 1. Maintien de l'accueil avec sa photo d'origine */
+#loginScreen {
+    position: relative;
+    z-index: 10;
+}
+
+/* 2. Style de la vidéo floutée en arrière-plan */
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1; /* Reste derrière toutes tes interfaces */
+    filter: blur(0px) brightness(0.55); /* Léger flou + assombrissement */
+    display: none; /* Masqué par défaut sur l'écran d'accueil */
+}
+

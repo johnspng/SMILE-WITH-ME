@@ -1,0 +1,1619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smile with me - Plateforme Officielle</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- 🎥 VIDÉO D'ARRIÈRE-PLAN -->
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="/images/background.mp4" type="video/mp4">
+    </video>
+
+    <!-- 0. ÉCRAN DE CONNEXION UTILISATEUR -->
+    <div id="loginScreen" class="container">
+        <div class="logo-glow">
+            <img src="logo.png" alt="Smile with me Logo" class="logo-img">
+        </div>
+        <h1>Smile <span>with me</span></h1>
+        <p>Décrocher un sourire ! Veuillez vous connecter.</p>
+        
+        <form id="loginForm" class="booking-card" style="text-align: left;">
+            <div class="form-group">
+                <label for="userName">Nom complet :</label>
+                <input type="text" id="userName" placeholder="Ex: Jonathan Hamba" required>
+            </div>
+            <div class="form-group">
+                <label for="userEmail">Adresse Gmail :</label>
+                <input type="email" id="userEmail" placeholder="Ex: client@gmail.com" required>
+            </div>
+            <div class="form-group">
+                <label for="userPassword">Mot de passe personnel :</label>
+                <input type="password" id="userPassword" placeholder="********" required>
+            </div>
+            <button type="submit" class="btn-action">Se connecter et Commencer →</button>
+        </form>
+
+        <div style="margin-top: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button id="openAdminBtn" class="btn-admin-access">🔐 Accès Administrateur backoffice</button>
+            <button id="openWorkerBtn" class="btn-admin-access" style="border-color: #28a745; color: #28a745;">👷 Espace Travailleur</button>
+            <button id="openClientSpaceBtn" class="btn-admin-access" style="border-color: #00A8FF; color: #00A8FF;">👤 Mon Espace Client</button>
+        </div>
+    </div>
+
+    <!-- 0.1 ESPACE CLIENT & FIDÉLISATION -->
+    <div id="clientSpaceScreen" class="container hidden">
+        <div class="booking-card">
+            <div class="client-header">
+                <button class="back-btn" id="closeClientSpaceBtn">← Retour</button>
+                <h2>Mon Espace Client</h2>
+            </div>
+            
+            <div class="client-profile-card">
+                <div class="client-avatar">👤</div>
+                <div class="client-info">
+                    <h3 id="clientDisplayName">-</h3>
+                    <p>Statut : <span class="badge-gold">Membre Privilège VIP ⭐</span></p>
+                    <p class="client-points">Points de fidélité : <strong id="clientPointsVal">120 pts</strong></p>
+                </div>
+            </div>
+
+            <div class="client-section-title">📦 Historique de mes Commandes</div>
+            <div id="clientOrdersList" class="client-orders-container">
+                <p class="no-orders-msg">Aucune commande enregistrée pour le moment.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 0.2 ESPACE TRAVAILLEUR (COMPTE À REBOURS & SIGNATURE) -->
+    <div id="workerSpaceScreen" class="container hidden">
+        <div class="booking-card">
+            <div class="client-header">
+                <button class="back-btn" id="closeWorkerSpaceBtn">← Retour</button>
+                <h2>👷 Espace Travailleur / Prestataire</h2>
+            </div>
+
+            <div class="worker-widget-section">
+                <h3>⏱️ Compte à rebours du Contrat (1 An)</h3>
+                <div class="watch-timer-container">
+                    <div class="time-box"><span id="daysVal">365</span><small>Jours</small></div>
+                    <div class="time-box"><span id="hoursVal">00</span><small>Heures</small></div>
+                    <div class="time-box"><span id="minsVal">00</span><small>Min</small></div>
+                    <div class="time-box"><span id="secsVal">00</span><small>Sec</small></div>
+                </div>
+            </div>
+
+            <div class="worker-widget-section" style="margin-top: 20px;">
+                <h3>🔄 Renouvellement du Contrat</h3>
+                <p style="font-size:0.85rem; color:#94A3B8; margin-bottom:10px;">Choisissez l'action à l'échéance :</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="button" id="renewBtn" class="btn-action" style="flex:1; background:#28a745;">Renouveler pour 1 An 📝</button>
+                    <button type="button" id="endContractBtn" class="btn-action" style="flex:1; background:#dc3545;">Terminer à l'échéance 🛑</button>
+                </div>
+                <p id="renewalStatusMsg" style="margin-top:10px; font-size:0.85rem; color:#FFB800; font-weight:600;"></p>
+            </div>
+
+            <div class="worker-widget-section" style="margin-top: 20px;">
+                <h3>✍️ Signature Électronique du Contrat</h3>
+                <p style="font-size:0.85rem; color:#94A3B8; margin-bottom:8px;">Signez ci-dessous avec votre souris ou au doigt :</p>
+                <div class="signature-canvas-wrapper">
+                    <canvas id="signatureCanvas" width="480" height="150"></canvas>
+                </div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button type="button" id="clearSignBtn" class="back-btn" style="flex:1; border-color:#dc3545; color:#ff6b6b;">Effacer</button>
+                    <button type="button" id="validateSignBtn" class="btn-action" style="flex:1; padding:8px;">Valider et Sceller 🔒</button>
+                </div>
+                <p id="signatureStatus" style="margin-top:8px; font-size:0.82rem; color:#28a745; font-weight:600; text-align:center;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. ÉCRAN DE CONFIGURATION DE L'ÉVÉNEMENT -->
+    <div id="bookingScreen" class="container hidden">
+        <div class="booking-card">
+            <h2> Configurez votre événement</h2>
+            <p class="notice">Délai obligatoire de 48 heures minimum avant la date de l'événement pour la gestion de l'équipe et de la logistique.</p>
+            
+            <form id="bookingForm">
+                <div class="form-group">
+                    <label>Sélectionnez le type d'événement :</label>
+                    <div class="event-grid">
+                        <div class="event-card" data-value="mariage" style="background-image: url('/images/event_mariage.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg>
+                            </span>
+                            <span class="event-name">Mariage</span>
+                        </div>
+                        <div class="event-card" data-value="anniversaire" style="background-image: url('/images/event_anniversaire.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><path d="M12 2v4m-6 4h12l-1 10H7L6 10zM9 6h6"/></svg>
+                            </span>
+                            <span class="event-name">Anniversaire</span>
+                        </div>
+                        <div class="event-card" data-value="demande" style="background-image: url('/images/event_demande.jpg');">
+                            <span class="event-icon svg-icon pulse-heart">
+                                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            </span>
+                            <span class="event-name">Demande en mariage</span>
+                        </div>
+                        <div class="event-card" data-value="fiançailles" style="background-image: url('/images/event_fiancailles.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><path d="M2 4l3 3 4-4 4 4 3-3v16H2V4z"/></svg>
+                            </span>
+                            <span class="event-name">Fiançailles / Dot</span>
+                        </div>
+                        <div class="event-card" data-value="vip" style="background-image: url('/images/event_vip.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                            </span>
+                            <span class="event-name">Soirée VIP & Concert</span>
+                        </div>
+                        <div class="event-card" data-value="diner" style="background-image: url('/images/event_diner.png');">
+                            <span class="event-icon svg-icon flicker-flame">
+                                <svg viewBox="0 0 24 24"><path d="M12 2c-2.5 3-4 6-4 9a4 4 0 008 0c0-3-1.5-6-4-9z"/></svg>
+                            </span>
+                            <span class="event-name">Dîner romantique</span>
+                        </div>
+                        <div class="event-card" data-value="entreprise" style="background-image: url('/images/event_corporate.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><path d="M3 21h18M3 7v14M21 7v14M6 11h2M6 15h2M16 11h2M16 15h2M9 3h6v4H9z"/></svg>
+                            </span>
+                            <span class="event-name">Corporate</span>
+                        </div>
+                        <div class="event-card" data-value="famille" style="background-image: url('/images/event_famille.jpg');">
+                            <span class="event-icon svg-icon">
+                                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                            </span>
+                            <span class="event-name">Célébration / Diplôme</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="eventType" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventCity">Ville de l'événement :</label>
+                    <select id="eventCity" class="form-select" required>
+                        <option value="Lubumbashi">Lubumbashi</option>
+                        <option value="Kipushi">Kipushi</option>
+                        <option value="Likasi">Likasi</option>
+                        <option value="Kolwezi">Kolwezi</option>
+                        <option value="Kinshasa">Kinshasa</option>
+                        <option value="Autre">Autre ville</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventLocation">Précisions sur le lieu / Quartier :</label>
+                    <input type="text" id="eventLocation" placeholder="Ex: Quartier Golf, Av. de la Paix..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDate">Date et Heure de l'événement :</label>
+                    <input type="datetime-local" id="eventDate" required>
+                </div>
+
+                <button type="submit" class="btn-action">Continuer vers les options →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. ÉCRAN DE LA BOUTIQUE D'OPTIONS -->
+    <div id="optionsScreen" class="container hidden">
+        <div class="booking-card boutique-card">
+            <h2>🛒 Boutique & Options</h2>
+            <p class="notice">Les articles de la boutique sont réglés intégralement (budget achats à part) + 50 % d'acompte sur la prestation de base (les 50 % restants étant réglés sur place à la fin de l'événement). Responsable assigné : <strong>JOHNS</strong>.</p>
+            
+            <form id="optionsForm">
+                <!-- Option Gâteau -->
+                <div class="option-item" data-option="gateau">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="gateau"> 
+                            <span class="opt-text">Gâteau d'événement personnalisé</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="gateau">
+                        <span class="price-pill" data-price="30">30 $</span>
+                        <span class="price-pill" data-price="60">60 $</span>
+                        <span class="price-pill" data-price="90">90 $</span>
+                        <span class="price-pill" data-price="120">120 $</span>
+                        <span class="price-pill" data-price="150">150 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-gateau" src="" alt="Aperçu Gâteau" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Fleurs -->
+                <div class="option-item" data-option="fleurs">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="fleurs"> 
+                            <span class="opt-text">Bouquet de fleurs fraîches / Roses</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="fleurs">
+                        <span class="price-pill" data-price="20">20 $</span>
+                        <span class="price-pill" data-price="50">50 $</span>
+                        <span class="price-pill" data-price="90">90 $</span>
+                        <span class="price-pill" data-price="120">120 $</span>
+                        <span class="price-pill" data-price="150">150 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-fleurs" src="" alt="Aperçu Fleurs" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Vin -->
+                <div class="option-item" data-option="vin">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="vin"> 
+                            <span class="opt-text">Bouteille de vin / Champagne</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="vin">
+                        <span class="price-pill" data-price="25">25 $</span>
+                        <span class="price-pill" data-price="55">55 $</span>
+                        <span class="price-pill" data-price="90">90 $</span>
+                        <span class="price-pill" data-price="120">120 $</span>
+                        <span class="price-pill" data-price="150">150 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-vin" src="" alt="Aperçu Vin" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Boules d'ambiance -->
+                <div class="option-item" data-option="boules">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="boules"> 
+                            <span class="opt-text">Boules d'ambiance / Éclairage déco</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="boules">
+                        <span class="price-pill" data-price="15">15 $</span>
+                        <span class="price-pill" data-price="35">35 $</span>
+                        <span class="price-pill" data-price="60">60 $</span>
+                        <span class="price-pill" data-price="80">80 $</span>
+                        <span class="price-pill" data-price="100">100 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-boules" src="" alt="Aperçu Boules" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Feux d'artifice -->
+                <div class="option-item" data-option="feux">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="feux"> 
+                            <span class="opt-text">Feux d'artifice / Étincelles froides</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="feux">
+                        <span class="price-pill" data-price="40">40 $</span>
+                        <span class="price-pill" data-price="60">60 $</span>
+                        <span class="price-pill" data-price="80">80 $</span>
+                        <span class="price-pill" data-price="100">100 $</span>
+                        <span class="price-pill" data-price="120">120 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-feux" src="" alt="Aperçu Feux" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Ballons -->
+                <div class="option-item" data-option="ballons">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="ballons"> 
+                            <span class="opt-text">Arche ou bouquet de ballons festifs</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="ballons">
+                        <span class="price-pill" data-price="10">10 $</span>
+                        <span class="price-pill" data-price="20">20 $</span>
+                        <span class="price-pill" data-price="30">30 $</span>
+                        <span class="price-pill" data-price="40">40 $</span>
+                        <span class="price-pill" data-price="50">50 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-ballons" src="" alt="Aperçu Ballons" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Carte postale -->
+                <div class="option-item" data-option="carte">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="carte"> 
+                            <span class="opt-text">Carte postale personnalisée Smile with me</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="carte">
+                        <span class="price-pill" data-price="5">5 $</span>
+                        <span class="price-pill" data-price="15">15 $</span>
+                        <span class="price-pill" data-price="25">25 $</span>
+                        <span class="price-pill" data-price="35">35 $</span>
+                        <span class="price-pill" data-price="40">40 $</span>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <img id="img-carte" src="" alt="Aperçu Carte" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <div class="summary-box">
+                    <p>Budget Achats Articles (à part) : <span id="totalPrice">0</span> $</p>
+                    <p>Acompte Prestation (50% maintenant) : <span>50</span> $ (Solde 50% sur place : <span>50</span> $)</p>
+                    <p class="deposit-text">Acompte Global à régler : <span id="depositPrice">50</span> $</p>
+                </div>
+
+                <button type="submit" class="btn-action">Voir le Récapitulatif →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. ÉCRAN DE RÉCAPITULATIF DE LA COMMANDE -->
+    <div id="summaryScreen" class="container hidden">
+        <div class="booking-card">
+            <h2> Récapitulatif de votre Commande</h2>
+            <p class="notice">Vérifiez les détails de votre prestation avant de procéder au dépôt sécurisé.</p>
+            
+            <div class="recap-content">
+                <p><strong>Type d'événement :</strong> <span id="recapEvent">-</span></p>
+                <p><strong>Lieu :</strong> <span id="recapLocation">-</span></p>
+                <p><strong>Date & Heure :</strong> <span id="recapDate">-</span></p>
+                <div class="recap-divider"></div>
+                <p><strong>Prestation de base :</strong> 100 $ (50 $ maintenant + 50 $ sur place en fin d'événement)</p>
+                <p><strong>Options choisies (Budget Achats) :</strong> <span id="recapOptionsList">Aucune option</span></p>
+                <p><strong>Total Achats Articles :</strong> <span id="recapOptionsTotal">0</span> $</p>
+                <div class="recap-divider"></div>
+                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Global à régler maintenant :</strong> <span id="recapGlobalDeposit">50</span> $</p>
+            </div>
+
+            <!-- Bloc conditionnel Transport hors Lubumbashi -->
+            <div id="transportWarningBox" class="transport-box hidden">
+                <p class="transport-warning-title">⚠️ Attention : Transport hors Lubumbashi</p>
+                <p class="transport-warning-text">
+                    Vous avez sélectionné une ville en dehors de Lubumbashi. Les frais de transport ne sont pas inclus.<br>
+                    📞 Contacts officiels logistique :<br>
+                    - Vodacom M-Pesa : <a href="tel:+243832112968" class="transport-call-link">+243 832 112 968</a><br>
+                    - Airtel Money : <a href="tel:+243970037868" class="transport-call-link">+243 970 037 868</a><br>
+                    - Orange Money : <a href="tel:+243844584375" class="transport-call-link">+243 844 584 375</a><br>
+                    - <a href="https://wa.me/243970037868" target="_blank" class="transport-call-link">Discuter sur WhatsApp</a>
+                </p>
+                <label class="transport-checkbox-label">
+                    <input type="checkbox" id="transportConfirmCheckbox">
+                    <span>Je confirme avoir pris connaissance et validé les conditions de transport.</span>
+                </label>
+            </div>
+
+            <button id="proceedToPaymentBtn" class="btn-action" style="margin-top: 20px;">Procéder au Dépôt →</button>
+        </div>
+    </div>
+
+    <!-- 4. ESPACE DE DÉPÔT SMILE WITH ME -->
+    <div id="paymentScreen" class="container hidden">
+        <div class="booking-card">
+            <h2> Espace de Dépôt Smile with me</h2>
+            <p class="notice">Cliquez sur votre opérateur pour configurer instantanément le dépôt sur le compte officiel de l'administration.</p>
+            
+            <div class="payment-methods-grid">
+                <div class="payment-card vodacom-card" data-operator="Vodacom" data-number="+243832112968">
+                    <img src="/mobile/vodacom.jpg" alt="Vodacom M-Pesa">
+                </div>
+                <div class="payment-card airtel-card" data-operator="Airtel" data-number="+243970037868">
+                    <img src="/mobile/airtel.jpg" alt="Airtel Money">
+                </div>
+                <div class="payment-card orange-card" data-operator="Orange" data-number="+243844584375">
+                    <img src="/mobile/orange.jpg" alt="Orange Money">
+                </div>
+                <div class="payment-card card-card" data-operator="Carte" data-number="Secure Gateway">
+                    <img src="/mobile/visa.jpg" alt="Visa">
+                </div>
+            </div>
+
+            <div id="xbetDepositFormContainer" class="hidden" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                <p id="selectedOperatorTitle" style="color: #FFB800; font-weight: 600; margin-bottom: 12px; text-align: center;"></p>
+                <form id="xbetForm">
+                    <div class="form-group">
+                        <label for="depositAmount">Montant du dépôt ($) :</label>
+                        <input type="text" id="depositAmount" readonly style="background-color: rgba(13,17,23,0.8); font-weight: 700; color: #28a745;">
+                    </div>
+                    <div class="form-group" id="clientPhoneGroup">
+                        <label for="clientAccountPhone">Votre numéro de téléphone :</label>
+                        <input type="tel" id="clientAccountPhone" placeholder="Ex: +243 970 000 000">
+                    </div>
+
+                    <div id="cardFieldsGroup" class="hidden">
+                        <div class="form-group">
+                            <label>Numéro de Carte :</label>
+                            <input type="text" placeholder="4532 •••• •••• 8921">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group">
+                                <label>Expiration :</label>
+                                <input type="text" placeholder="MM/AA">
+                            </div>
+                            <div class="form-group">
+                                <label>CVV :</label>
+                                <input type="password" placeholder="123" maxlength="4">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="depositErrorMsg" class="artist-alert hidden" style="margin-bottom: 12px;">
+                        ❌ Erreur : Le numéro saisi ne correspond pas à l'opérateur sélectionné.
+                    </div>
+
+                    <button type="submit" id="confirmDepositBtn" class="btn-action">Valider le Dépôt →</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4.1 POPUP SIMULATION PUSH USSD -->
+    <div id="ussdModal" class="admin-modal hidden">
+        <div class="admin-content" style="max-width: 400px; text-align: center; border-color: #28a745;">
+            <p style="font-size: 2rem; margin-bottom: 10px;">💬</p>
+            <h3 id="ussdPopupTitle" style="color: #28a745; margin-bottom: 10px;">Notification Réseau</h3>
+            <p id="ussdPopupText" style="color: #E2E8F0; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4;"></p>
+            
+            <div id="ussdStep1">
+                <div class="form-group" style="text-align: left;">
+                    <label id="ussdInputLabel">Entrez votre code PIN secret :</label>
+                    <input type="password" id="ussdPinInput" placeholder="••••" maxlength="6" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
+                </div>
+                <button type="button" id="ussdValidateBtn" class="btn-action" style="background: #28a745; color:#fff;">Valider avec mon Code PIN 🔐</button>
+            </div>
+
+            <div id="ussdStep2" class="hidden">
+                <p style="color: #FFB800; font-weight: 600; font-size: 1rem; margin-bottom: 15px;">⏳ Traitement en cours par l'opérateur...</p>
+                <p style="font-size: 0.8rem; color: #94A3B8;">Veuillez patienter pendant la validation de la transaction USSD sécurisée.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. ÉCRAN DE SÉLECTION DES PRESTATAIRES (CARTES PRO) -->
+    <div id="artistsScreen" class="container hidden">
+        <div class="booking-card boutique-card">
+            <h2> Choisissez vos Prestataires Artistiques</h2>
+            <p class="notice" id="artistLimitNotice">Votre formule vous autorise un maximum de <span id="maxArtistsAllowed">3</span> prestataires inclus selon votre budget.</p>
+            
+            <form id="artistsForm">
+                <div class="artist-grid-pro" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-height: 300px; overflow-y: auto; padding-right: 4px; margin-bottom: 15px;">
+                    
+                    <div class="artist-card-pro" data-artist="Chanteur / Guitare">
+                        <span class="artist-icon-badge">🎸</span>
+                        <div class="artist-info-box">
+                            <h4>Chanteur / Guitare</h4>
+                            <span>Animation Live</span>
+                        </div>
+                        <input type="checkbox" class="artist-checkbox hidden">
+                    </div>
+
+                    <div class="artist-card-pro" data-artist="Violoniste">
+                        <span class="artist-icon-badge">🎻</span>
+                        <div class="artist-info-box">
+                            <h4>Violoniste </h4>
+                            <span>Prestation Classique</span>
+                        </div>
+                        <input type="checkbox" class="artist-checkbox hidden">
+                    </div>
+
+                    <div class="artist-card-pro" data-artist="Slameur (Yves)">
+                        <span class="artist-icon-badge">🎙️</span>
+                        <div class="artist-info-box">
+                            <h4>Slameur </h4>
+                            <span>Poésie & Texte</span>
+                        </div>
+                        <input type="checkbox" class="artist-checkbox hidden">
+                    </div>
+
+                    <div class="artist-card-pro" data-artist="Flûtiste (Rikk)">
+                        <span class="artist-icon-badge">🎶</span>
+                        <div class="artist-info-box">
+                            <h4>Flûtiste</h4>
+                            <span>Ambiance Spéciale</span>
+                        </div>
+                        <input type="checkbox" class="artist-checkbox hidden">
+                    </div>
+
+                    <div class="artist-card-pro" data-artist="Lecteur de Textes (Gamo)" style="grid-column: span 2;">
+                        <span class="artist-icon-badge">📖</span>
+                        <div class="artist-info-box">
+                            <h4>Lecteur de Textes</h4>
+                            <span>Parolier & Discours sur mesure</span>
+                        </div>
+                        <input type="checkbox" class="artist-checkbox hidden">
+                    </div>
+
+                </div>
+
+                <div id="artistAlert" class="artist-alert hidden">
+                    ❌ Le nombre de vos prestataires dépasse la limite autorisée par rapport à votre formule.
+                </div>
+
+                <div class="summary-box" style="margin-top: 15px;">
+                    <p>Prestataires sélectionnés : <span id="selectedArtistsCount">0</span> / <span id="displayMaxCount">3</span></p>
+                </div>
+
+                <button type="submit" class="btn-action">Finaliser et Générer le Reçu →</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 6. ÉCRAN DE REÇU FINAL & CHATBOT INTERACTIF -->
+    <div id="successScreen" class="container hidden">
+        <div class="booking-card receipt-card">
+            <div class="success-icon"></div>
+            <h2>Commande Réussie !</h2>
+            <p class="receipt-subtitle">Veuillez faire une <strong>capture d'écran</strong> de cette page comme preuve officielle de votre dépôt.</p>
+            
+            <div class="recap-content receipt-box">
+                <p style="text-align: center; color: #FFB800; font-weight: 700; margin-bottom: 12px; font-size: 1.1rem;">SMILE WITH ME — REÇU OFFICIEL</p>
+                <p><strong>Client :</strong> <span id="receiptClientName">-</span> (<span id="receiptClientEmail">-</span>)</p>
+                <p><strong>Événement :</strong> <span id="finalRecapEvent">-</span></p>
+                <p><strong>Lieu :</strong> <span id="finalRecapLocation">-</span></p>
+                <p><strong>Date & Heure :</strong> <span id="finalRecapDate">-</span></p>
+                <div class="recap-divider"></div>
+                <p><strong>Options achetées (Budget Achats) :</strong> <span id="finalRecapOptions">Aucune</span></p>
+                <p><strong>Artistes assignés :</strong> <span id="finalRecapArtists">Aucun</span></p>
+                <div class="recap-divider"></div>
+                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Déposé :</strong> <span id="finalRecapAmount">50</span> $ (Solde sur place : <span id="finalRecapBalance">50</span> $)</p>
+            </div>
+
+            <div class="touching-message">
+                <p> <strong>Vous venez de décider de décrocher un sourire...</strong></p>
+                <p>Merci du fond du cœur de faire confiance à notre équipe et à <strong>JOHNS</strong>. Nous mettons tout notre cœur pour transformer votre événement en un moment inoubliable.</p>
+            </div>
+
+            <!-- CHATBOT INTERACTIF INTÉGRÉ -->
+            <div class="chatbot-container">
+                <div class="chatbot-header">
+                    <span class="chatbot-title">🤖 Assistant Smile with me (Live)</span>
+                </div>
+                <div id="chatMessages" class="chatbot-messages">
+                    <div class="bot-msg">Bonjour ! Je suis l'assistant virtuel Smile with me. Comment puis-je vous aider concernant votre réservation ?</div>
+                </div>
+                <div class="chatbot-input-area">
+                    <input type="text" id="chatInput" placeholder="Posez votre question ici...">
+                    <button id="sendChatBtn" class="btn-chat-send">Envoyer</button>
+                </div>
+            </div>
+
+            <div class="action-buttons-group">
+                <button id="downloadPdfBtn" class="btn-action btn-pdf">📥 Télécharger le vrai PDF officiel (Imprimer)</button>
+                <a id="whatsappBtn" href="#" target="_blank" class="btn-action btn-whatsapp">💬 Envoyer la preuve sur WhatsApp</a>
+                <button id="restartBtn" class="btn-action" style="margin-top: 10px;">Nouvelle Réservation </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. PANNEAU D'ADMINISTRATION SECRETE (BACK-OFFICE) -->
+    <div id="adminModal" class="admin-modal hidden">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2>Back-Office Administrateur</h2>
+                <button id="closeAdminBtn" class="btn-close-admin">✖</button>
+            </div>
+            
+            <div id="adminAuthBox" class="form-group" style="margin-top: 20px;">
+                <label for="adminPin">Entrez le Code PIN administrateur :</label>
+                <input type="password" id="adminPin" placeholder="••••" maxlength="4" class="form-group input" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
+                <button id="authAdminBtn" class="btn-action" style="margin-top: 10px;">Se connecter</button>
+            </div>
+
+            <div id="adminDashboard" class="hidden">
+                <div class="admin-nav-buttons">
+                    <button id="showHistoryBtn" class="btn-action" style="padding: 10px; font-size: 0.9rem;">📋 Historique</button>
+                    <button id="showTeamBtn" class="btn-action" style="padding: 10px; font-size: 0.9rem; background: #28a745;">👥 Équipe & Salaires</button>
+                </div>
+
+                <!-- Section Historique -->
+                <div id="adminHistorySection" style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <p style="color: #28a745; font-weight: 600; margin: 0;">✅ Historique et Répartition :</p>
+                        <button id="exportCsvBtn" class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.75rem; background: #0072CE;">📥 Exporter CSV</button>
+                    </div>
+                    <div id="reservationsList" class="reservations-container"></div>
+                    <button id="clearDataBtn" class="btn-action" style="background: #dc3545; margin-top: 15px;">Effacer l'historique</button>
+                </div>
+
+                <!-- Section Annuaire Équipe -->
+                <div id="adminTeamSection" class="hidden" style="margin-top: 15px;">
+                    <p style="color: #FFB800; font-weight: 600; margin-bottom: 10px;">👥 Annuaire & Paiement Mobile Money par Membre :</p>
+                    <p style="font-size: 0.78rem; color: #94A3B8; margin-bottom: 12px;">Le montant à verser pour les prestations du jour s'affiche en premier, suivi du total cumulé de toutes les prestations.</p>
+                    <div class="reservations-container" style="max-height: 48vh;" id="teamDirectoryContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script JavaScript complet -->
+    <script>
+        const loginScreen = document.getElementById('loginScreen');
+        const loginForm = document.getElementById('loginForm');
+        const bookingScreen = document.getElementById('bookingScreen');
+        const optionsScreen = document.getElementById('optionsScreen');
+        const summaryScreen = document.getElementById('summaryScreen');
+        const paymentScreen = document.getElementById('paymentScreen');
+        const artistsScreen = document.getElementById('artistsScreen');
+        const successScreen = document.getElementById('successScreen');
+        
+        const bookingForm = document.getElementById('bookingForm');
+        const optionsForm = document.getElementById('optionsForm');
+        const artistsForm = document.getElementById('artistsForm');
+        const restartBtn = document.getElementById('restartBtn');
+        const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+
+        const openClientSpaceBtn = document.getElementById('openClientSpaceBtn');
+        const closeClientSpaceBtn = document.getElementById('closeClientSpaceBtn');
+        const clientSpaceScreen = document.getElementById('clientSpaceScreen');
+        const clientDisplayName = document.getElementById('clientDisplayName');
+        const clientOrdersList = document.getElementById('clientOrdersList');
+
+        const openWorkerBtn = document.getElementById('openWorkerBtn');
+        const closeWorkerSpaceBtn = document.getElementById('closeWorkerSpaceBtn');
+        const workerSpaceScreen = document.getElementById('workerSpaceScreen');
+        const renewBtn = document.getElementById('renewBtn');
+        const endContractBtn = document.getElementById('endContractBtn');
+        const renewalStatusMsg = document.getElementById('renewalStatusMsg');
+
+        let currentUser = { name: '', email: '' };
+        let currentOrderData = {};
+        const basePrestationPrice = 100;
+        const prestationDepositAmount = basePrestationPrice / 2; // 50 $ encaissés maintenant
+        const prestationBalanceAmount = basePrestationPrice / 2; // 50 $ à encaisser sur place
+        let pendingOrderAmount = prestationDepositAmount;
+
+        const teamMembersData = [
+            { id: 1, name: 'JOHNS', role: 'Administration & Supervision', weight: 0.20, justification: 'Supervision générale, gestion de la plateforme et de la structure.', mpesa: '+243832112968', airtel: '+243970037868', orange: '+243844584375' },
+            { id: 2, name: 'H', role: 'Artiste Chanteur', weight: 0.12, justification: 'Prestation artistique live et animation musicale.', mpesa: '+243821000002', airtel: '+243817680744', orange: '+243851000002' },
+            { id: 3, name: 'Gamo', role: 'Parolier & Lecteur de Textes', weight: 0.10, justification: 'Création des textes sur mesure et lecture artistique.', mpesa: '+243821000003', airtel: '+243970037868', orange: '+243844584375' },
+            { id: 4, name: 'Deby', role: 'Achats & Logistique', weight: 0.10, justification: 'Gestion des courses de la boutique (gâteaux, fleurs) et logistique.', mpesa: '+243821000004', airtel: '+243999683409', orange: '+243851000004' },
+            { id: 5, name: 'Gorby', role: 'Marketing & Communication', weight: 0.10, justification: 'Stratégie marketing, visibilité et acquisition clients.', mpesa: '+243821000005', airtel: '+243906081846', orange: '+243851000005' },
+            { id: 6, name: 'Madame Dorcia', role: 'Achats & Planificateur', weight: 0.10, justification: 'Planification des plannings et appui aux achats.', mpesa: '+243821000006', airtel: '+243978678534', orange: '+243851000006' },
+            { id: 7, name: 'Rikk', role: 'Flûtiste Chinois', weight: 0.10, justification: 'Prestation instrumentale spécialisée (flûte).', mpesa: '+243821000007', airtel: '+243800428653', orange: '+243851000007' },
+            { id: 8, name: 'Yves', role: 'Slameur', weight: 0.10, justification: 'Prestation poétique et slam live.', mpesa: '+243821000008', airtel: '+243976999594', orange: '+243851000008' },
+            { id: 9, name: 'Tegra', role: 'Violoniste', weight: 0.08, justification: 'Prestation instrumentale (violon) pour les événements.', mpesa: '+243821000009', airtel: '+243971756828', orange: '+243851000009' }
+        ];
+
+        // Extrait la part partagée d'une commande (50% de la prestation encaissé, hors achats boutique)
+        function getOrderBreakdown(ord) {
+            const totalPaid = Number(ord.amount) || 0;
+            const achatsAmount = (typeof ord.optionsTotal === 'number')
+                ? Number(ord.optionsTotal)
+                : Math.max(0, totalPaid - prestationDepositAmount);
+            const shareablePrestation = (typeof ord.prestationDeposit === 'number')
+                ? Number(ord.prestationDeposit)
+                : Math.max(0, totalPaid - achatsAmount);
+            const balanceOnSite = (typeof ord.prestationBalanceDue === 'number')
+                ? Number(ord.prestationBalanceDue)
+                : prestationBalanceAmount;
+
+            const shareSmile = shareablePrestation * 0.15;
+            const remainingAfterSmile = shareablePrestation * 0.85;
+            const shareJohns = remainingAfterSmile * 0.20;
+            const shareTeam = remainingAfterSmile * 0.80;
+
+            return {
+                totalPaid,
+                achatsAmount,
+                shareablePrestation,
+                balanceOnSite,
+                shareSmile,
+                shareJohns,
+                shareTeam
+            };
+        }
+
+        function getTodayLocalStr() {
+            const now = new Date();
+            return now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0');
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            currentUser.name = document.getElementById('userName').value.trim();
+            currentUser.email = document.getElementById('userEmail').value.trim();
+
+            document.getElementById('bg-video').style.display = 'block';
+
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                bookingScreen.classList.remove('hidden');
+                bookingScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        openClientSpaceBtn.addEventListener('click', () => {
+            const inputName = document.getElementById('userName').value.trim();
+            currentUser.name = inputName || 'Client Privilège';
+            clientDisplayName.textContent = currentUser.name;
+
+            let savedOrders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            
+            if (savedOrders.length === 0) {
+                clientOrdersList.innerHTML = `<p class="no-orders-msg">Aucune commande enregistrée pour le moment.</p>`;
+            } else {
+                clientOrdersList.innerHTML = '';
+                savedOrders.forEach((ord, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'order-item-card';
+                    card.innerHTML = `
+                        <p><strong>Commande #${index + 1}</strong> — <span style="color:#FFB800;">${ord.eventType || 'Événement'}</span></p>
+                        <p>Lieu : ${ord.location || '-'}</p>
+                        <p>Date : ${ord.date || '-'}</p>
+                        <p>Acompte payé : <strong style="color:#28a745;">${ord.amount || prestationDepositAmount} $</strong></p>
+                    `;
+                    clientOrdersList.appendChild(card);
+                });
+            }
+
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                clientSpaceScreen.classList.remove('hidden');
+                clientSpaceScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        closeClientSpaceBtn.addEventListener('click', () => {
+            clientSpaceScreen.style.opacity = '0';
+            setTimeout(() => {
+                clientSpaceScreen.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                loginScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        openWorkerBtn.addEventListener('click', () => {
+            const pinCode = prompt("Entrez le code d'accès Travailleur :");
+            if (pinCode === "0000") {
+                loginScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loginScreen.classList.add('hidden');
+                    workerSpaceScreen.classList.remove('hidden');
+                    workerSpaceScreen.style.opacity = '1';
+                    startContractCountdown();
+                    initSignatureCanvas();
+                }, 300);
+            } else if (pinCode !== null) {
+                alert("Code d'accès Travailleur incorrect.");
+            }
+        });
+
+        closeWorkerSpaceBtn.addEventListener('click', () => {
+            workerSpaceScreen.style.opacity = '0';
+            setTimeout(() => {
+                workerSpaceScreen.classList.add('hidden');
+                loginScreen.classList.remove('hidden');
+                loginScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        function sendAdminWhatsAppAlert(messageText) {
+            const adminPhone = "243970037868";
+            const encodedMsg = encodeURIComponent(messageText);
+            window.open(`https://wa.me/${adminPhone}?text=${encodedMsg}`, '_blank');
+        }
+
+        let contractTimerInterval = null;
+
+        function startContractCountdown(customTargetTime) {
+            if (contractTimerInterval) {
+                clearInterval(contractTimerInterval);
+            }
+
+            let savedTarget = localStorage.getItem('smile_worker_contract_end');
+            let targetTime = customTargetTime || (savedTarget ? parseInt(savedTarget, 10) : (new Date().getTime() + (365 * 24 * 60 * 60 * 1000)));
+            localStorage.setItem('smile_worker_contract_end', targetTime);
+
+            function updateDisplay() {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+
+                if (distance > 0) {
+                    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    document.getElementById('daysVal').textContent = String(days).padStart(3, '0');
+                    document.getElementById('hoursVal').textContent = String(hours).padStart(2, '0');
+                    document.getElementById('minsVal').textContent = String(mins).padStart(2, '0');
+                    document.getElementById('secsVal').textContent = String(secs).padStart(2, '0');
+                } else {
+                    clearInterval(contractTimerInterval);
+                    document.getElementById('daysVal').textContent = '000';
+                    document.getElementById('hoursVal').textContent = '00';
+                    document.getElementById('minsVal').textContent = '00';
+                    document.getElementById('secsVal').textContent = '00';
+                }
+            }
+
+            updateDisplay();
+            contractTimerInterval = setInterval(updateDisplay, 1000);
+        }
+
+        renewBtn.addEventListener('click', () => {
+            const workerName = document.getElementById('userName').value.trim() || "Un prestataire";
+            const newTarget = new Date().getTime() + (365 * 24 * 60 * 60 * 1000);
+            
+            startContractCountdown(newTarget);
+            
+            renewalStatusMsg.style.color = "#28a745";
+            renewalStatusMsg.textContent = "✅ Contrat renouvelé avec succès pour 1 an ! Compte à rebours relancé.";
+
+            sendAdminWhatsAppAlert(`🔄 RENOUVELLEMENT DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Renouvellement validé pour 1 an (365 jours).\nDate : ${new Date().toLocaleString()}`);
+        });
+
+        endContractBtn.addEventListener('click', () => {
+            const workerName = document.getElementById('userName').value.trim() || "Un prestataire";
+            
+            renewalStatusMsg.textContent = "🛑 Demande de fin de contrat enregistrée à l'échéance.";
+            renewalStatusMsg.style.color = "#dc3545";
+
+            sendAdminWhatsAppAlert(`🛑 FIN DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Souhaite terminer son contrat à l'échéance.\nDate : ${new Date().toLocaleString()}`);
+        });
+
+        function initSignatureCanvas() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            let hasSigned = false;
+
+            ctx.strokeStyle = '#FFB800';
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            canvas.onmousedown = (e) => { isDrawing = true; hasSigned = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+            canvas.onmousemove = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+            canvas.onmouseup = () => { isDrawing = false; };
+            canvas.onmouseleave = () => { isDrawing = false; };
+
+            canvas.ontouchstart = (e) => { isDrawing = true; hasSigned = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); };
+            canvas.ontouchmove = (e) => { if (!isDrawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); };
+            canvas.ontouchend = () => { isDrawing = false; };
+
+            document.getElementById('clearSignBtn').onclick = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                hasSigned = false;
+                document.getElementById('signatureStatus').textContent = "";
+            };
+
+            document.getElementById('validateSignBtn').onclick = () => {
+                if (!hasSigned) {
+                    alert("Veuillez d'abord apposer votre signature dans le cadre avant de valider.");
+                    return;
+                }
+                const workerName = document.getElementById('userName').value.trim() || "Un prestataire";
+                document.getElementById('signatureStatus').textContent = "🔒 Signature électronique validée et scellée avec succès !";
+
+                sendAdminWhatsAppAlert(`✍️ CONTRAT SIGNÉ ET SCELLÉ — Smile with me\n\nPrestataire : ${workerName}\nStatut : Signature électronique validée avec succès.\nDate : ${new Date().toLocaleString()}`);
+            };
+        }
+
+        const eventCards = document.querySelectorAll('.event-card');
+        const eventTypeInput = document.getElementById('eventType');
+        const eventCitySelect = document.getElementById('eventCity');
+        const eventLocationInput = document.getElementById('eventLocation');
+        const eventDateInput = document.getElementById('eventDate');
+
+        eventCards.forEach(card => {
+            card.addEventListener('click', () => {
+                eventCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                eventTypeInput.value = card.getAttribute('data-value');
+            });
+        });
+
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if(!eventTypeInput.value) {
+                alert('Veuillez sélectionner un type d\'événement.');
+                return;
+            }
+            bookingScreen.style.opacity = '0';
+            setTimeout(() => {
+                bookingScreen.classList.add('hidden');
+                optionsScreen.classList.remove('hidden');
+                optionsScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        const optionItems = document.querySelectorAll('.option-item');
+        const totalPriceSpan = document.getElementById('totalPrice');
+        const depositPriceSpan = document.getElementById('depositPrice');
+        const finalAmountSpan = document.getElementById('depositAmount');
+        let globalDeposit = prestationDepositAmount;
+        let currentOptionsTotal = 0;
+
+        optionItems.forEach(item => {
+            const checkbox = item.querySelector('.option-checkbox');
+            const pillsContainer = item.querySelector('.price-pills');
+            const pills = item.querySelectorAll('.price-pill');
+            const optionKey = item.getAttribute('data-option');
+            const previewContainer = item.querySelector('.item-preview');
+            const previewImg = item.querySelector('img');
+            
+            item.selectedPrice = 0;
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    pillsContainer.classList.remove('hidden');
+                    let activePill = item.querySelector('.price-pill.active');
+                    if (!activePill) {
+                        pills[0].classList.add('active');
+                        item.selectedPrice = parseFloat(pills[0].getAttribute('data-price'));
+                        updateItemPreview(optionKey, pills[0].getAttribute('data-price'), previewContainer, previewImg);
+                    }
+                } else {
+                    pillsContainer.classList.add('hidden');
+                    pills.forEach(p => p.classList.remove('active'));
+                    previewContainer.classList.add('hidden');
+                    item.selectedPrice = 0;
+                }
+                updateTotals();
+            });
+
+            pills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    pills.forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    item.selectedPrice = parseFloat(pill.getAttribute('data-price'));
+                    updateItemPreview(optionKey, pill.getAttribute('data-price'), previewContainer, previewImg);
+                    updateTotals();
+                });
+            });
+        });
+
+        function updateItemPreview(optionKey, priceVal, container, imgElement) {
+            imgElement.src = `/images/${optionKey}_${priceVal}.png`;
+            container.classList.remove('hidden');
+        }
+
+        function updateTotals() {
+            currentOptionsTotal = 0;
+            optionItems.forEach(item => {
+                const checkbox = item.querySelector('.option-checkbox');
+                if (checkbox.checked) {
+                    currentOptionsTotal += item.selectedPrice;
+                }
+            });
+
+            totalPriceSpan.textContent = currentOptionsTotal;
+            globalDeposit = prestationDepositAmount + currentOptionsTotal;
+            depositPriceSpan.textContent = globalDeposit;
+            finalAmountSpan.value = globalDeposit + ' $';
+            pendingOrderAmount = globalDeposit;
+        }
+
+        const recapEvent = document.getElementById('recapEvent');
+        const recapLocation = document.getElementById('recapLocation');
+        const recapDate = document.getElementById('recapDate');
+        const recapOptionsList = document.getElementById('recapOptionsList');
+        const recapOptionsTotal = document.getElementById('recapOptionsTotal');
+        const recapGlobalDeposit = document.getElementById('recapGlobalDeposit');
+        
+        const transportWarningBox = document.getElementById('transportWarningBox');
+        const transportConfirmCheckbox = document.getElementById('transportConfirmCheckbox');
+
+        optionsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            recapEvent.textContent = eventTypeInput.value.toUpperCase();
+            recapLocation.textContent = `${eventCitySelect.value} - ${eventLocationInput.value}`;
+            recapDate.textContent = eventDateInput.value.replace('T', ' à ');
+            recapOptionsTotal.textContent = currentOptionsTotal;
+            recapGlobalDeposit.textContent = globalDeposit;
+
+            let selectedOptsText = [];
+            optionItems.forEach(item => {
+                const checkbox = item.querySelector('.option-checkbox');
+                if (checkbox.checked) {
+                    const title = item.querySelector('.opt-text').textContent;
+                    selectedOptsText.push(`${title} (${item.selectedPrice} $)`);
+                }
+            });
+            recapOptionsList.textContent = selectedOptsText.length > 0 ? selectedOptsText.join(', ') : 'Aucune option';
+
+            if (eventCitySelect.value !== 'Lubumbashi') {
+                transportWarningBox.classList.remove('hidden');
+                transportConfirmCheckbox.checked = false;
+            } else {
+                transportWarningBox.classList.add('hidden');
+                transportConfirmCheckbox.checked = true;
+            }
+
+            optionsScreen.style.opacity = '0';
+            setTimeout(() => {
+                optionsScreen.classList.add('hidden');
+                summaryScreen.classList.remove('hidden');
+                summaryScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        proceedToPaymentBtn.addEventListener('click', () => {
+            if (eventCitySelect.value !== 'Lubumbashi' && !transportConfirmCheckbox.checked) {
+                alert('Veuillez cocher la case de confirmation concernant les frais de transport hors Lubumbashi avant de continuer.');
+                return;
+            }
+
+            summaryScreen.style.opacity = '0';
+            setTimeout(() => {
+                summaryScreen.classList.add('hidden');
+                paymentScreen.classList.remove('hidden');
+                paymentScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        const paymentCards = document.querySelectorAll('.payment-card');
+        const xbetDepositFormContainer = document.getElementById('xbetDepositFormContainer');
+        const selectedOperatorTitle = document.getElementById('selectedOperatorTitle');
+        const clientAccountPhone = document.getElementById('clientAccountPhone');
+        const clientPhoneGroup = document.getElementById('clientPhoneGroup');
+        const cardFieldsGroup = document.getElementById('cardFieldsGroup');
+        const xbetForm = document.getElementById('xbetForm');
+        const depositErrorMsg = document.getElementById('depositErrorMsg');
+        let selectedOperator = '';
+
+        paymentCards.forEach(card => {
+            card.addEventListener('click', () => {
+                paymentCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                
+                selectedOperator = card.getAttribute('data-operator');
+                selectedOperatorTitle.textContent = `Paiement sécurisé via ${selectedOperator}`;
+                xbetDepositFormContainer.classList.remove('hidden');
+                depositErrorMsg.classList.add('hidden');
+
+                if (selectedOperator === 'Carte') {
+                    clientPhoneGroup.classList.add('hidden');
+                    cardFieldsGroup.classList.remove('hidden');
+                    clientAccountPhone.removeAttribute('required');
+                } else {
+                    clientPhoneGroup.classList.remove('hidden');
+                    cardFieldsGroup.classList.add('hidden');
+                    clientAccountPhone.setAttribute('required', 'true');
+                    clientAccountPhone.value = '';
+                }
+            });
+        });
+
+        const ussdModal = document.getElementById('ussdModal');
+        const ussdPopupTitle = document.getElementById('ussdPopupTitle');
+        const ussdPopupText = document.getElementById('ussdPopupText');
+        const ussdStep1 = document.getElementById('ussdStep1');
+        const ussdStep2 = document.getElementById('ussdStep2');
+        const ussdPinInput = document.getElementById('ussdPinInput');
+        const ussdValidateBtn = document.getElementById('ussdValidateBtn');
+
+        xbetForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (selectedOperator === 'Carte') {
+                proceedToArtistSelection();
+                return;
+            }
+
+            const phoneVal = clientAccountPhone.value.trim();
+
+            if (selectedOperator === 'Vodacom') {
+                if (!phoneVal.startsWith('+24381') && !phoneVal.startsWith('+24382') && !phoneVal.startsWith('081') && !phoneVal.startsWith('082')) {
+                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Vodacom (081/082).';
+                    depositErrorMsg.classList.remove('hidden');
+                    return;
+                }
+            } else if (selectedOperator === 'Airtel') {
+                if (!phoneVal.startsWith('+24397') && !phoneVal.startsWith('+24398') && !phoneVal.startsWith('097') && !phoneVal.startsWith('098')) {
+                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Airtel (097/098).';
+                    depositErrorMsg.classList.remove('hidden');
+                    return;
+                }
+            } else if (selectedOperator === 'Orange') {
+                if (!phoneVal.startsWith('+24384') && !phoneVal.startsWith('+24385') && !phoneVal.startsWith('084') && !phoneVal.startsWith('085')) {
+                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Orange (084/085).';
+                    depositErrorMsg.classList.remove('hidden');
+                    return;
+                }
+            }
+
+            depositErrorMsg.classList.add('hidden');
+            
+            ussdPopupTitle.textContent = `${selectedOperator} Money — Paiement`;
+            ussdPopupText.innerHTML = `Voulez-vous valider le paiement de <strong style="color:#28a745;">${pendingOrderAmount} $</strong> vers <strong>Smile with me</strong> depuis le <strong>${phoneVal}</strong> ?`;
+            ussdPinInput.value = '';
+            ussdStep1.classList.remove('hidden');
+            ussdStep2.classList.add('hidden');
+            ussdModal.classList.remove('hidden');
+        });
+
+        ussdValidateBtn.addEventListener('click', () => {
+            const pinVal = ussdPinInput.value.trim();
+            if (pinVal.length < 4) {
+                alert('Veuillez entrer votre code PIN secret valide (4 chiffres minimum).');
+                return;
+            }
+
+            ussdStep1.classList.add('hidden');
+            ussdStep2.classList.remove('hidden');
+
+            setTimeout(() => {
+                ussdModal.classList.add('hidden');
+                proceedToArtistSelection();
+            }, 2000);
+        });
+
+        function proceedToArtistSelection() {
+            const maxArtistsAllowedSpan = document.getElementById('maxArtistsAllowed');
+            const displayMaxCountSpan = document.getElementById('displayMaxCount');
+            let maxArtistsLimit = (currentOptionsTotal > 100) ? 5 : 3;
+
+            maxArtistsAllowedSpan.textContent = maxArtistsLimit;
+            displayMaxCountSpan.textContent = maxArtistsLimit;
+
+            paymentScreen.style.opacity = '0';
+            setTimeout(() => {
+                paymentScreen.classList.add('hidden');
+                artistsScreen.classList.remove('hidden');
+                artistsScreen.style.opacity = '1';
+            }, 300);
+        }
+
+        const artistCards = document.querySelectorAll('.artist-card-pro');
+        const selectedArtistsCountSpan = document.getElementById('selectedArtistsCount');
+        const artistAlert = document.getElementById('artistAlert');
+        let selectedArtistsCount = 0;
+
+        artistCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const checkbox = card.querySelector('.artist-checkbox');
+                let maxArtistsLimit = (currentOptionsTotal > 100) ? 5 : 3;
+                
+                if (card.classList.contains('active')) {
+                    card.classList.remove('active');
+                    checkbox.checked = false;
+                    selectedArtistsCount--;
+                    artistAlert.classList.add('hidden');
+                } else {
+                    if (selectedArtistsCount >= maxArtistsLimit) {
+                        artistAlert.classList.remove('hidden');
+                        return;
+                    }
+                    card.classList.add('active');
+                    checkbox.checked = true;
+                    selectedArtistsCount++;
+                    artistAlert.classList.add('hidden');
+                }
+                selectedArtistsCountSpan.textContent = selectedArtistsCount;
+            });
+        });
+
+        const receiptClientName = document.getElementById('receiptClientName');
+        const receiptClientEmail = document.getElementById('receiptClientEmail');
+        const finalRecapEvent = document.getElementById('finalRecapEvent');
+        const finalRecapLocation = document.getElementById('finalRecapLocation');
+        const finalRecapDate = document.getElementById('finalRecapDate');
+        const finalRecapOptions = document.getElementById('finalRecapOptions');
+        const finalRecapArtists = document.getElementById('finalRecapArtists');
+        const finalRecapAmount = document.getElementById('finalRecapAmount');
+        const finalRecapBalance = document.getElementById('finalRecapBalance');
+
+        artistsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const eventType = eventTypeInput.value.toUpperCase();
+            const location = `${eventCitySelect.value} - ${eventLocationInput.value}`;
+            const date = eventDateInput.value.replace('T', ' à ');
+
+            receiptClientName.textContent = currentUser.name;
+            receiptClientEmail.textContent = currentUser.email;
+            finalRecapEvent.textContent = eventType;
+            finalRecapLocation.textContent = location;
+            finalRecapDate.textContent = date;
+            finalRecapAmount.textContent = pendingOrderAmount;
+            finalRecapBalance.textContent = prestationBalanceAmount;
+
+            let selectedOptsArr = [];
+            optionItems.forEach(item => {
+                const checkbox = item.querySelector('.option-checkbox');
+                if (checkbox.checked) {
+                    selectedOptsArr.push(item.querySelector('.opt-text').textContent);
+                }
+            });
+            finalRecapOptions.textContent = selectedOptsArr.length > 0 ? selectedOptsArr.join(', ') : 'Aucune';
+
+            let selectedArtistsArr = [];
+            artistCards.forEach(card => {
+                const checkbox = card.querySelector('.artist-checkbox');
+                if (checkbox.checked) {
+                    selectedArtistsArr.push(card.getAttribute('data-artist'));
+                }
+            });
+            finalRecapArtists.textContent = selectedArtistsArr.length > 0 ? selectedArtistsArr.join(', ') : 'Aucun';
+
+            let orderRecord = {
+                client: currentUser.name,
+                email: currentUser.email,
+                eventType: eventType,
+                location: location,
+                date: date,
+                options: selectedOptsArr,
+                optionsTotal: currentOptionsTotal,
+                prestationDeposit: prestationDepositAmount,
+                prestationBalanceDue: prestationBalanceAmount,
+                artists: selectedArtistsArr,
+                amount: pendingOrderAmount,
+                timestamp: new Date().toLocaleString()
+            };
+
+            let existingOrders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            existingOrders.push(orderRecord);
+            localStorage.setItem('smile_orders', JSON.stringify(existingOrders));
+
+            const waText = encodeURIComponent(`Bonjour JOHNS, voici la preuve de mon dépôt de ${pendingOrderAmount}$ (dont ${currentOptionsTotal}$ d'articles et ${prestationDepositAmount}$ d'acompte prestation ; reste ${prestationBalanceAmount}$ sur place) pour mon événement (${eventType}) prévu le ${date}. Client: ${currentUser.name}`);
+            whatsappBtn.href = `https://wa.me/243970037868?text=${waText}`;
+
+            artistsScreen.style.opacity = '0';
+            setTimeout(() => {
+                artistsScreen.classList.add('hidden');
+                successScreen.classList.remove('hidden');
+                successScreen.style.opacity = '1';
+            }, 300);
+        });
+
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+
+        function appendMessage(text, sender) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = sender === 'bot' ? 'bot-msg' : 'user-msg';
+            msgDiv.textContent = text;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function handleChatBotResponse(question) {
+            const q = question.toLowerCase();
+            setTimeout(() => {
+                if (q.includes('delai') || q.includes('temps') || q.includes('48h')) {
+                    appendMessage("Nos services requièrent un délai obligatoire de 48h minimum avant l'événement pour coordonner toute l'équipe logistique et artistique.", 'bot');
+                } else if (q.includes('contact') || q.includes('johns') || q.includes('telephone')) {
+                    appendMessage("Vous pouvez joindre directement l'administration (JOHNS) au +243 970 037 868 ou via WhatsApp.", 'bot');
+                } else if (q.includes('acompte') || q.includes('remboursement') || q.includes('payer')) {
+                    appendMessage("Les articles commandés sont réglés à part pour les achats, et la prestation est réglée à 50 % maintenant puis 50 % sur place une fois l'événement terminé.", 'bot');
+                } else {
+                    appendMessage("Merci pour votre message ! JOHNS et son équipe ont bien pris note et vous contacteront rapidement pour les derniers préparatifs.", 'bot');
+                }
+            }, 600);
+        }
+
+        sendChatBtn.addEventListener('click', () => {
+            const text = chatInput.value.trim();
+            if(!text) return;
+            appendMessage(text, 'user');
+            chatInput.value = '';
+            handleChatBotResponse(text);
+        });
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatBtn.click();
+            }
+        });
+
+        downloadPdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFillColor(13, 13, 13);
+            doc.rect(0, 0, 210, 297, 'F');
+
+            doc.setTextColor(255, 184, 0);
+            doc.setFontSize(22);
+            doc.text("SMILE WITH ME", 105, 25, { align: 'center' });
+
+            doc.setTextColor(160, 160, 160);
+            doc.setFontSize(11);
+            doc.text("Décrocher un sourire ! — Reçu Officiel de Réservation", 105, 33, { align: 'center' });
+
+            doc.setDrawColor(255, 184, 0);
+            doc.line(20, 40, 190, 40);
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            let y = 55;
+            doc.text(`Client : ${currentUser.name} (${currentUser.email})`, 20, y);
+            y += 10;
+            doc.text(`Événement : ${eventTypeInput.value.toUpperCase()}`, 20, y);
+            y += 10;
+            doc.text(`Lieu : ${eventCitySelect.value} - ${eventLocationInput.value}`, 20, y);
+            y += 10;
+            doc.text(`Date & Heure : ${eventDateInput.value.replace('T', ' à ')}`, 20, y);
+            y += 15;
+
+            doc.text("Détails financiers & Prestations :", 20, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.setTextColor(200, 200, 200);
+            doc.text(`- Acompte Global Versé : ${pendingOrderAmount} $ (Articles : ${currentOptionsTotal} $ | Prestation 50% : ${prestationDepositAmount} $)`, 25, y);
+            y += 8;
+            doc.text(`- Solde Prestation (50% sur place) : ${prestationBalanceAmount} $`, 25, y);
+            y += 8;
+            doc.text(`- Responsable Supervision : JOHNS`, 25, y);
+            y += 20;
+
+            doc.setTextColor(255, 184, 0);
+            doc.setFontSize(11);
+            doc.text("Merci de faire confiance à Smile with me !", 105, y, { align: 'center' });
+
+            doc.save(`Recu_SmileWithMe_${currentUser.name.replace(/\s+/g, '_')}.pdf`);
+        });
+
+        restartBtn.addEventListener('click', () => {
+            location.reload();
+        });
+
+        const openAdminBtn = document.getElementById('openAdminBtn');
+        const closeAdminBtn = document.getElementById('closeAdminBtn');
+        const adminModal = document.getElementById('adminModal');
+        const authAdminBtn = document.getElementById('authAdminBtn');
+        const adminPin = document.getElementById('adminPin');
+        const adminAuthBox = document.getElementById('adminAuthBox');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const showHistoryBtn = document.getElementById('showHistoryBtn');
+        const showTeamBtn = document.getElementById('showTeamBtn');
+        const adminHistorySection = document.getElementById('adminHistorySection');
+        const adminTeamSection = document.getElementById('adminTeamSection');
+        const reservationsList = document.getElementById('reservationsList');
+        const teamDirectoryContainer = document.getElementById('teamDirectoryContainer');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+        openAdminBtn.addEventListener('click', () => {
+            adminPin.value = '';
+            adminAuthBox.classList.remove('hidden');
+            adminDashboard.classList.add('hidden');
+            adminModal.classList.remove('hidden');
+        });
+
+        closeAdminBtn.addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+        });
+
+        authAdminBtn.addEventListener('click', () => {
+            if (adminPin.value === '243') {
+                adminAuthBox.classList.add('hidden');
+                adminDashboard.classList.remove('hidden');
+                loadAdminData();
+            } else {
+                alert('Code PIN administrateur incorrect ');
+            }
+        });
+
+        showHistoryBtn.addEventListener('click', () => {
+            adminHistorySection.classList.remove('hidden');
+            adminTeamSection.classList.add('hidden');
+            loadAdminData();
+        });
+
+        showTeamBtn.addEventListener('click', () => {
+            adminTeamSection.classList.remove('hidden');
+            adminHistorySection.classList.add('hidden');
+            loadTeamDirectory();
+        });
+
+        function loadAdminData() {
+            let orders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            if (orders.length === 0) {
+                reservationsList.innerHTML = `<p style="color:#888; text-align:center; padding:15px;">Aucune réservation enregistrée.</p>`;
+                return;
+            }
+
+            reservationsList.innerHTML = '';
+            orders.forEach((ord, index) => {
+                const b = getOrderBreakdown(ord);
+
+                const item = document.createElement('div');
+                item.className = 'admin-order-item';
+                item.style.cssText = "background:#141414; border:1px solid #262626; padding:10px; border-radius:8px; margin-bottom:10px;";
+                item.innerHTML = `
+                    <p><strong>#${index + 1} — ${ord.client}</strong> (${ord.email})</p>
+                    <p>Événement : <span style="color:#FFB800;">${ord.eventType}</span> à ${ord.location}</p>
+                    <p>Date : ${ord.date}</p>
+                    <p>Montant Acompte encaissé : <strong style="color:#28a745;">${b.totalPaid.toFixed(2)} $</strong></p>
+                    <p style="font-size:0.8rem; color:#FFB800;">🛒 Budget Achats Articles (à part) : <strong>${b.achatsAmount.toFixed(2)} $</strong> | 🎤 Prestation encaissée (50%) : <strong>${b.shareablePrestation.toFixed(2)} $</strong> | ⏳ Solde sur place (50%) : <strong>${b.balanceOnSite.toFixed(2)} $</strong></p>
+                    <div class="breakdown-box">
+                        <p style="margin:2px 0; color:#00ABFF;">📍 Répartition sur prestation encaissée (${b.shareablePrestation.toFixed(2)} $) : Smile with me (15%) = <strong>${b.shareSmile.toFixed(2)} $</strong> | Johns (20% sur reste) = <strong>${b.shareJohns.toFixed(2)} $</strong> | Équipe (80% sur reste) = <strong>${b.shareTeam.toFixed(2)} $</strong></p>
+                    </div>
+                `;
+                reservationsList.appendChild(item);
+            });
+        }
+
+        function loadTeamDirectory() {
+            let orders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            const todayStr = getTodayLocalStr();
+
+            let totalTeamDaily = 0;
+            let totalTeamAll = 0;
+
+            orders.forEach(ord => {
+                const b = getOrderBreakdown(ord);
+                totalTeamAll += b.shareTeam;
+                if (ord.date && String(ord.date).startsWith(todayStr)) {
+                    totalTeamDaily += b.shareTeam;
+                }
+            });
+
+            let restrictedList = JSON.parse(localStorage.getItem('smile_restricted_members') || '[]');
+            let lastOrder = orders.length > 0 ? orders[orders.length - 1] : { artists: [], date: 'Aujourd\'hui' };
+            let activeArtists = lastOrder.artists || [];
+
+            teamDirectoryContainer.innerHTML = '';
+
+            let headerInfo = document.createElement('div');
+            headerInfo.style.cssText = "background: rgba(0,168,255,0.1); border: 1px solid #00A8FF; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;";
+            headerInfo.innerHTML = `📅 <strong>Part Équipe du jour (${todayStr}) :</strong> <span style="color:#28a745; font-weight:700;">${totalTeamDaily.toFixed(2)} $</span> | Cumul global Équipe : <strong>${totalTeamAll.toFixed(2)} $</strong><br>🎪 Dernier événement : <span style="color:#FFB800;">${lastOrder.eventType || 'Aucun'}</span>`;
+            teamDirectoryContainer.appendChild(headerInfo);
+
+            teamMembersData.forEach(member => {
+                let dailyShare = (totalTeamDaily * member.weight).toFixed(2);
+                let totalAllFormatted = (totalTeamAll * member.weight).toFixed(2);
+
+                let card = document.createElement('div');
+                card.className = 'team-member-card';
+
+                let isRestricted = restrictedList.includes(member.name);
+                let statusBadge = '';
+
+                if (isRestricted) {
+                    statusBadge = `<span style="background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">🚫 Restreint / Suspendu</span>`;
+                } else {
+                    let isArtist = member.role.includes('Artiste') || member.role.includes('Parolier') || member.role.includes('Flûtiste') || member.role.includes('Violoniste') || member.role.includes('Slameur');
+                    if (isArtist) {
+                        let hasPrestased = activeArtists.some(art => art.toLowerCase().includes(member.name.toLowerCase()) || activeArtists.some(a => a.toLowerCase().includes(member.role.toLowerCase().split(' ')[0])));
+                        if (hasPrestased || activeArtists.length === 0) {
+                            statusBadge = `<span style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid #28a745; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">✅ A presté ce jour (Actif)</span>`;
+                        } else {
+                            statusBadge = `<span style="background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">❌ N'a pas presté (Inactif)</span>`;
+                        }
+                    } else {
+                        statusBadge = `<span style="background: rgba(0,168,255,0.2); color: #00A8FF; border: 1px solid #00A8FF; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600;">💼 Staff / Admin Fixe</span>`;
+                    }
+                }
+
+                let actionBtn = isRestricted
+                    ? `<button onclick="unrestrictMember('${member.name}', '${member.role}')" style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid #28a745; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🔓 Lever la restriction</button>`
+                    : `<button onclick="restrictMember('${member.name}', '${member.role}')" style="background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🚫 Restreindre / Suspendre ce membre</button>`;
+
+                card.style.cssText = "background: rgba(26, 35, 50, 0.7); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; margin-bottom: 10px;";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <strong style="color: #FFB800; font-size: 0.95rem;">${member.name}</strong>
+                        ${statusBadge}
+                    </div>
+                    <p style="color: #00A8FF; font-size: 0.8rem; margin: 2px 0;">${member.role}</p>
+                    <p style="font-size: 0.82rem; color: #28a745; font-weight: 600; margin: 4px 0;">Part : ${(member.weight * 100).toFixed(0)}% ➔ Montant du jour : ${dailyShare} $</p>
+                    <p style="font-size: 0.78rem; color: #b0c4de; margin: 2px 0;">Total de toutes les prestations : <strong>${totalAllFormatted} $</strong></p>
+                    <p style="font-size: 0.73rem; color: #94A3B8; margin: 2px 0;">${member.justification}</p>
+                    <div class="team-operator-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px;">
+                        <button class="op-btn" onclick="payMember('${member.name}', 'M-Pesa', '${member.mpesa}', ${member.weight})">M-Pesa</button>
+                        <button class="op-btn" onclick="payMember('${member.name}', 'Airtel', '${member.airtel}', ${member.weight})">Airtel</button>
+                        <button class="op-btn" onclick="payMember('${member.name}', 'Orange', '${member.orange}', ${member.weight})">Orange</button>
+                    </div>
+                    <div style="margin-top: 8px; text-align: right;">
+                        ${actionBtn}
+                    </div>
+                `;
+                teamDirectoryContainer.appendChild(card);
+            });
+        }
+
+        window.restrictMember = function(memberName, memberRole) {
+            let motif = prompt(`Entrez le motif de la restriction pour ${memberName} (${memberRole}) :`, "Inactivité ou non-respect des clauses");
+            
+            if (motif !== null) {
+                let restrictedList = JSON.parse(localStorage.getItem('smile_restricted_members') || '[]');
+                if (!restrictedList.includes(memberName)) {
+                    restrictedList.push(memberName);
+                    localStorage.setItem('smile_restricted_members', JSON.stringify(restrictedList));
+                }
+
+                alert(`🚫 Le membre ${memberName} a été restreint avec succès.`);
+
+                sendAdminWhatsAppAlert(`🚫 RESTRICTION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nMotif : ${motif}\nDate : ${new Date().toLocaleString()}\n\nAction effectuée depuis le back-office.`);
+                
+                loadTeamDirectory();
+            }
+        };
+
+        window.unrestrictMember = function(memberName, memberRole) {
+            if (confirm(`Voulez-vous réactiver ${memberName} (${memberRole}) ?`)) {
+                let restrictedList = JSON.parse(localStorage.getItem('smile_restricted_members') || '[]');
+                restrictedList = restrictedList.filter(name => name !== memberName);
+                localStorage.setItem('smile_restricted_members', JSON.stringify(restrictedList));
+
+                alert(`✅ Le membre ${memberName} est de nouveau actif.`);
+
+                sendAdminWhatsAppAlert(`✅ RÉACTIVATION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nStatut : Restriction levée, membre réactivé.\nDate : ${new Date().toLocaleString()}`);
+
+                loadTeamDirectory();
+            }
+        };
+
+        window.payMember = function(name, operator, number, weight) {
+            let orders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            const todayStr = getTodayLocalStr();
+
+            let totalTeamDaily = 0;
+            let totalTeamAll = 0;
+
+            orders.forEach(ord => {
+                const b = getOrderBreakdown(ord);
+                totalTeamAll += b.shareTeam;
+                if (ord.date && String(ord.date).startsWith(todayStr)) {
+                    totalTeamDaily += b.shareTeam;
+                }
+            });
+
+            let dailyShare = (totalTeamDaily * weight).toFixed(2);
+            let totalAllShare = (totalTeamAll * weight).toFixed(2);
+
+            alert(`📊 Calcul pour ${name} (${operator} - ${number}) :\n\n- Montant du jour à verser (${(weight*100).toFixed(0)}%) : ${dailyShare} $\n- Total de toutes les prestations : ${totalAllShare} $\n\nLe virement USSD vers ${number} peut être initié.`);
+        };
+
+        clearDataBtn.addEventListener('click', () => {
+            if (confirm('Voulez-vous vraiment effacer tout l\'historique des commandes ?')) {
+                localStorage.removeItem('smile_orders');
+                loadAdminData();
+                alert('Historique effacé avec succès.');
+            }
+        });
+
+        exportCsvBtn.addEventListener('click', () => {
+            let orders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            if (orders.length === 0) {
+                alert('Aucune donnée à exporter.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Client,Email,Evenement,Lieu,Date,Achats_Articles,Prestation_Encaissee,Solde_Sur_Place,Total_Verse\n";
+            orders.forEach(ord => {
+                const b = getOrderBreakdown(ord);
+                csvContent += `"${ord.client}","${ord.email}","${ord.eventType}","${ord.location}","${ord.date}",${b.achatsAmount.toFixed(2)},${b.shareablePrestation.toFixed(2)},${b.balanceOnSite.toFixed(2)},${b.totalPaid.toFixed(2)}\n`;
+            });
+
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "SmileWithMe_Historique.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
