@@ -39,9 +39,9 @@
         </form>
 
         <div style="margin-top: 25px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-            <button id="openAdminBtn" class="btn-admin-access">🔐 Accès Administrateur backoffice</button>
-            <button id="openWorkerBtn" class="btn-admin-access" style="border-color: #28a745; color: #28a745;">👷 Espace Travailleur</button>
-            <button id="openClientSpaceBtn" class="btn-admin-access" style="border-color: #00A8FF; color: #00A8FF;">👤 Mon Espace Client</button>
+            <button type="button" id="openAdminBtn" class="btn-admin-access">🔐 Accès Administrateur backoffice</button>
+            <button type="button" id="openWorkerBtn" class="btn-admin-access" style="border-color: #28a745; color: #28a745;">👷 Espace Travailleur</button>
+            <button type="button" id="openClientSpaceBtn" class="btn-admin-access" style="border-color: #00A8FF; color: #00A8FF;">👤 Mon Espace Client</button>
         </div>
     </div>
 
@@ -49,7 +49,7 @@
     <div id="clientSpaceScreen" class="container hidden">
         <div class="booking-card">
             <div class="client-header">
-                <button class="back-btn" id="closeClientSpaceBtn">← Retour</button>
+                <button type="button" class="back-btn" id="closeClientSpaceBtn">← Retour</button>
                 <h2>Mon Espace Client</h2>
             </div>
             
@@ -73,7 +73,7 @@
     <div id="workerSpaceScreen" class="container hidden">
         <div class="booking-card">
             <div class="client-header">
-                <button class="back-btn" id="closeWorkerSpaceBtn">← Retour</button>
+                <button type="button" class="back-btn" id="closeWorkerSpaceBtn">← Retour</button>
                 <h2>👷 Espace Travailleur / Prestataire</h2>
             </div>
 
@@ -115,8 +115,17 @@
     <!-- 1. ÉCRAN DE CONFIGURATION DE L'ÉVÉNEMENT -->
     <div id="bookingScreen" class="container hidden">
         <div class="booking-card">
-            <h2> Configurez votre événement</h2>
-            <p class="notice">Délai obligatoire de 48 heures minimum avant la date de l'événement pour la gestion de l'équipe et de la logistique.</p>
+            <h2>Configurez votre événement</h2>
+            <p class="notice">Délai obligatoire de 48 heures minimum avant la date de l'événement pour la gestion de l'équipe et de la logistique. Les créneaux listés ci-dessous sont déjà pris, mais vous pouvez réserver librement d'autres dates.</p>
+
+            <!-- Dates déjà réservées classées en ordre sur 4 colonnes -->
+            <div class="booked-dates-panel">
+                <div class="booked-dates-header">
+                    <span>📅 Dates déjà réservées (ordre chronologique — JJ/MM/AAAA)</span>
+                    <span id="bookedDatesCountBadge" class="booked-count-pill">0 créneau</span>
+                </div>
+                <div id="bookedDatesGrid4" class="booked-dates-grid-4"></div>
+            </div>
             
             <form id="bookingForm">
                 <div class="form-group">
@@ -194,9 +203,19 @@
                 <div class="form-group">
                     <label for="eventDate">Date et Heure de l'événement :</label>
                     <input type="datetime-local" id="eventDate" required>
+                    <div id="eventDateStatus" class="date-status-badge available hidden">Créneau disponible</div>
                 </div>
 
-                <button type="submit" class="btn-action">Continuer vers les options →</button>
+                <div class="form-group">
+                    <label for="eventBudget">Votre tarif / budget proposé pour la prestation ($) :</label>
+                    <input type="number" id="eventBudget" min="1" step="any" placeholder="Ex: 50, 300, 400..." required>
+                    <small style="color: #94A3B8; display: block; margin-top: 4px;">50 % d'acompte maintenant + 50 % sur place à la fin de l'événement (les achats d'articles restent à part).</small>
+                </div>
+
+                <div class="step-nav-bar">
+                    <button type="button" id="backFromBookingBtn" class="btn-back-step">← Retour</button>
+                    <button type="submit" id="nextFromBookingBtn" class="btn-action">Suivant : Boutique & Options →</button>
+                </div>
             </form>
         </div>
     </div>
@@ -205,7 +224,7 @@
     <div id="optionsScreen" class="container hidden">
         <div class="booking-card boutique-card">
             <h2>🛒 Boutique & Options</h2>
-            <p class="notice">Les articles de la boutique sont réglés intégralement (budget achats à part) + 50 % d'acompte sur la prestation de base (les 50 % restants étant réglés sur place à la fin de l'événement). Responsable assigné : <strong>JOHNS</strong>.</p>
+            <p class="notice">Les articles de la boutique sont réglés intégralement (budget achats à part) + 50 % d'acompte sur la prestation proposée (les 50 % restants étant réglés sur place à la fin de l'événement). Responsable assigné : <strong>JOHNS</strong>.</p>
             
             <form id="optionsForm">
                 <!-- Option Gâteau -->
@@ -223,7 +242,18 @@
                         <span class="price-pill" data-price="120">120 $</span>
                         <span class="price-pill" data-price="150">150 $</span>
                     </div>
+                    <div id="gateauCustomBox" class="hidden" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.12);">
+                        <label style="font-size: 0.82rem; color: #FFB800; display: block; margin-bottom: 6px;">Taille du gâteau :</label>
+                        <div id="cakeSizePills" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+                            <button type="button" class="cake-size-pill active" data-size="Petit">Petit</button>
+                            <button type="button" class="cake-size-pill" data-size="Moyen">Moyen</button>
+                            <button type="button" class="cake-size-pill" data-size="Grand">Grand</button>
+                        </div>
+                        <label for="gateauCustomText" style="font-size: 0.82rem; color: #CBD5E1; display: block; margin-bottom: 4px;">Personnalisation du gâteau (message, parfum, couleur) :</label>
+                        <input type="text" id="gateauCustomText" placeholder="Ex: Joyeux anniversaire + parfum chocolat, doré...">
+                    </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Gâteau</span>
                         <img id="img-gateau" src="" alt="Aperçu Gâteau" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -244,6 +274,7 @@
                         <span class="price-pill" data-price="150">150 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Fleurs</span>
                         <img id="img-fleurs" src="" alt="Aperçu Fleurs" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -264,6 +295,7 @@
                         <span class="price-pill" data-price="150">150 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Vin</span>
                         <img id="img-vin" src="" alt="Aperçu Vin" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -284,6 +316,7 @@
                         <span class="price-pill" data-price="100">100 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Boules d'ambiance</span>
                         <img id="img-boules" src="" alt="Aperçu Boules" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -304,6 +337,7 @@
                         <span class="price-pill" data-price="120">120 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Feux d'artifice</span>
                         <img id="img-feux" src="" alt="Aperçu Feux" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -324,6 +358,7 @@
                         <span class="price-pill" data-price="50">50 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Ballons</span>
                         <img id="img-ballons" src="" alt="Aperçu Ballons" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
@@ -344,17 +379,51 @@
                         <span class="price-pill" data-price="40">40 $</span>
                     </div>
                     <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Carte</span>
                         <img id="img-carte" src="" alt="Aperçu Carte" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
+                    </div>
+                </div>
+
+                <!-- Option Autre (Velouté & articles galerie) -->
+                <div class="option-item" data-option="autre">
+                    <div class="option-header">
+                        <label>
+                            <input type="checkbox" class="option-checkbox" data-name="autre"> 
+                            <span class="opt-text">Autre (Velouté & articles galerie)</span>
+                        </label>
+                    </div>
+                    <div class="price-pills hidden" data-for="autre">
+                        <span class="price-pill" data-price="15">15 $</span>
+                        <span class="price-pill" data-price="25">25 $</span>
+                        <span class="price-pill" data-price="40">40 $</span>
+                        <span class="price-pill" data-price="60">60 $</span>
+                        <span class="price-pill" data-price="80">80 $</span>
+                    </div>
+                    <div id="autreDetailsBox" class="hidden" style="margin-top: 10px;">
+                        <label for="autreCustomText" style="font-size: 0.82rem; color: #FFB800; display: block; margin-bottom: 4px;">Précisez votre demande (ex: velouté ou article recherché) :</label>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="autreCustomText" placeholder="Ex: Velouté, modèle précis..." style="flex: 1; min-width: 180px;">
+                            <button type="button" id="searchOtherWebBtn" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #00A8FF; background: rgba(0,168,255,0.16); color: #00A8FF; font-size: 0.82rem; font-weight: 600; cursor: pointer;">🔍 Chercher sur le net</button>
+                        </div>
+                        <small id="autreSearchHint" style="color: #94A3B8; display: block; margin-top: 4px;">Saisissez ce que vous cherchez puis cliquez sur « Chercher sur le net » pour ouvrir une recherche dans un nouvel onglet.</small>
+                    </div>
+                    <div class="item-preview hidden" style="margin-top:12px; text-align:center;">
+                        <span class="preview-caption">Aperçu Autre / Velouté</span>
+                        <img id="img-autre" src="" alt="Aperçu Autre / Velouté" style="max-width:100%; max-height:180px; border-radius:10px; border:2px solid #FFB800; object-fit:cover;">
                     </div>
                 </div>
 
                 <div class="summary-box">
                     <p>Budget Achats Articles (à part) : <span id="totalPrice">0</span> $</p>
-                    <p>Acompte Prestation (50% maintenant) : <span>50</span> $ (Solde 50% sur place : <span>50</span> $)</p>
-                    <p class="deposit-text">Acompte Global à régler : <span id="depositPrice">50</span> $</p>
+                    <p>Tarif Prestation proposé : <span id="proposedPrestationDisplay">0.00</span> $</p>
+                    <p>Acompte Prestation (50% maintenant) : <span id="prestationDepositDisplay">0.00</span> $ (Solde 50% sur place : <span id="prestationBalanceDisplay">0.00</span> $)</p>
+                    <p class="deposit-text">Acompte Global à régler : <span id="depositPrice">0</span> $</p>
                 </div>
 
-                <button type="submit" class="btn-action">Voir le Récapitulatif →</button>
+                <div class="step-nav-bar">
+                    <button type="button" id="backFromOptionsBtn" class="btn-back-step">← Retour</button>
+                    <button type="submit" id="nextFromOptionsBtn" class="btn-action">Suivant : Récapitulatif →</button>
+                </div>
             </form>
         </div>
     </div>
@@ -362,7 +431,7 @@
     <!-- 3. ÉCRAN DE RÉCAPITULATIF DE LA COMMANDE -->
     <div id="summaryScreen" class="container hidden">
         <div class="booking-card">
-            <h2> Récapitulatif de votre Commande</h2>
+            <h2>Récapitulatif de votre Commande</h2>
             <p class="notice">Vérifiez les détails de votre prestation avant de procéder au dépôt sécurisé.</p>
             
             <div class="recap-content">
@@ -370,11 +439,16 @@
                 <p><strong>Lieu :</strong> <span id="recapLocation">-</span></p>
                 <p><strong>Date & Heure :</strong> <span id="recapDate">-</span></p>
                 <div class="recap-divider"></div>
-                <p><strong>Prestation de base :</strong> 100 $ (50 $ maintenant + 50 $ sur place en fin d'événement)</p>
+                <p><strong>Tarif Prestation proposé :</strong> <span id="recapPrestationTotal">0.00</span> $ (<span id="recapPrestationDeposit">0.00</span> $ maintenant + <span id="recapPrestationBalance">0.00</span> $ sur place en fin d'événement)</p>
                 <p><strong>Options choisies (Budget Achats) :</strong> <span id="recapOptionsList">Aucune option</span></p>
                 <p><strong>Total Achats Articles :</strong> <span id="recapOptionsTotal">0</span> $</p>
                 <div class="recap-divider"></div>
-                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Global à régler maintenant :</strong> <span id="recapGlobalDeposit">50</span> $</p>
+                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Global à régler maintenant :</strong> <span id="recapGlobalDeposit">0</span> $</p>
+            </div>
+
+            <!-- Bloc Rétractation / Modification -->
+            <div class="retraction-box">
+                <p><strong>🔄 Droit de rétractation ou modification :</strong> Besoin d'ajuster la date, le lieu ou d'annuler avant le lancement des achats ? Vous pouvez revenir en arrière à tout moment ou contacter directement <strong>JOHNS</strong> (+243 970 037 868) pour toute demande de rétractation.</p>
             </div>
 
             <!-- Bloc conditionnel Transport hors Lubumbashi -->
@@ -386,7 +460,7 @@
                     - Vodacom M-Pesa : <a href="tel:+243832112968" class="transport-call-link">+243 832 112 968</a><br>
                     - Airtel Money : <a href="tel:+243970037868" class="transport-call-link">+243 970 037 868</a><br>
                     - Orange Money : <a href="tel:+243844584375" class="transport-call-link">+243 844 584 375</a><br>
-                    - <a href="https://wa.me/243970037868" target="_blank" class="transport-call-link">Discuter sur WhatsApp</a>
+                    - <a href="https://wa.me/243970037868" target="_blank" rel="noopener noreferrer" class="transport-call-link">Discuter sur WhatsApp</a>
                 </p>
                 <label class="transport-checkbox-label">
                     <input type="checkbox" id="transportConfirmCheckbox">
@@ -394,14 +468,17 @@
                 </label>
             </div>
 
-            <button id="proceedToPaymentBtn" class="btn-action" style="margin-top: 20px;">Procéder au Dépôt →</button>
+            <div class="step-nav-bar">
+                <button type="button" id="backFromSummaryBtn" class="btn-back-step">← Retour</button>
+                <button type="button" id="proceedToPaymentBtn" class="btn-action">Suivant : Dépôt →</button>
+            </div>
         </div>
     </div>
 
     <!-- 4. ESPACE DE DÉPÔT SMILE WITH ME -->
     <div id="paymentScreen" class="container hidden">
         <div class="booking-card">
-            <h2> Espace de Dépôt Smile with me</h2>
+            <h2>Espace de Dépôt Smile with me</h2>
             <p class="notice">Cliquez sur votre opérateur pour configurer instantanément le dépôt sur le compte officiel de l'administration.</p>
             
             <div class="payment-methods-grid">
@@ -427,8 +504,30 @@
                         <input type="text" id="depositAmount" readonly style="background-color: rgba(13,17,23,0.8); font-weight: 700; color: #28a745;">
                     </div>
                     <div class="form-group" id="clientPhoneGroup">
-                        <label for="clientAccountPhone">Votre numéro de téléphone :</label>
-                        <input type="tel" id="clientAccountPhone" placeholder="Ex: +243 970 000 000">
+                        <label for="clientAccountPhone">Votre numéro de téléphone (RDC ou étranger) :</label>
+                        <input type="tel" id="clientAccountPhone" placeholder="Ex: +243 970 000 000 ou +33 6 12 34 56 78">
+
+                        <div class="country-phone-helper" style="margin-top: 8px;">
+                            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                <label for="phoneCountrySelect" style="font-size: 0.78rem; color: #94A3B8; margin: 0;">Pays / Préfixe :</label>
+                                <select id="phoneCountrySelect" class="form-select" style="width: auto; min-width: 175px; padding: 7px 10px; font-size: 0.84rem;">
+                                    <option value="+243" data-sample="0970037868">🇨🇩 RD Congo (+243)</option>
+                                    <option value="+243" data-sample="0830892090">🇨🇩 Vodacom / RDC (+243)</option>
+                                    <option value="+33" data-sample="+337893400">🇫🇷 France (+33)</option>
+                                    <option value="+32" data-sample="+32470112233">🇧🇪 Belgique (+32)</option>
+                                    <option value="+27" data-sample="+27821234567">🇿🇦 Afrique du Sud (+27)</option>
+                                    <option value="+242" data-sample="+242065001122">🇨🇬 Congo-Brazza (+242)</option>
+                                    <option value="+260" data-sample="+260971234567">🇿🇲 Zambie (+260)</option>
+                                    <option value="+1" data-sample="+15551234567">🇺🇸 USA / Canada (+1)</option>
+                                    <option value="+44" data-sample="+447700900077">🇬🇧 Royaume-Uni (+44)</option>
+                                </select>
+                            </div>
+                            <div id="phoneQuickChips" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                                <button type="button" class="quick-phone-chip" data-phone="0970037868">0970037868</button>
+                                <button type="button" class="quick-phone-chip" data-phone="0830892090">0830892090</button>
+                                <button type="button" class="quick-phone-chip" data-phone="+337893400">+337893400</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="cardFieldsGroup" class="hidden">
@@ -452,8 +551,12 @@
                         ❌ Erreur : Le numéro saisi ne correspond pas à l'opérateur sélectionné.
                     </div>
 
-                    <button type="submit" id="confirmDepositBtn" class="btn-action">Valider le Dépôt →</button>
+                    <button type="submit" id="confirmDepositBtn" class="btn-action">Suivant : Valider le Dépôt →</button>
                 </form>
+            </div>
+
+            <div class="step-nav-bar">
+                <button type="button" id="backFromPaymentBtn" class="btn-back-step">← Retour au Récapitulatif</button>
             </div>
         </div>
     </div>
@@ -483,7 +586,7 @@
     <!-- 5. ÉCRAN DE SÉLECTION DES PRESTATAIRES (CARTES PRO) -->
     <div id="artistsScreen" class="container hidden">
         <div class="booking-card boutique-card">
-            <h2> Choisissez vos Prestataires Artistiques</h2>
+            <h2>Choisissez vos Prestataires Artistiques</h2>
             <p class="notice" id="artistLimitNotice">Votre formule vous autorise un maximum de <span id="maxArtistsAllowed">3</span> prestataires inclus selon votre budget.</p>
             
             <form id="artistsForm">
@@ -501,7 +604,7 @@
                     <div class="artist-card-pro" data-artist="Violoniste">
                         <span class="artist-icon-badge">🎻</span>
                         <div class="artist-info-box">
-                            <h4>Violoniste </h4>
+                            <h4>Violoniste</h4>
                             <span>Prestation Classique</span>
                         </div>
                         <input type="checkbox" class="artist-checkbox hidden">
@@ -510,7 +613,7 @@
                     <div class="artist-card-pro" data-artist="Slameur (Yves)">
                         <span class="artist-icon-badge">🎙️</span>
                         <div class="artist-info-box">
-                            <h4>Slameur </h4>
+                            <h4>Slameur</h4>
                             <span>Poésie & Texte</span>
                         </div>
                         <input type="checkbox" class="artist-checkbox hidden">
@@ -544,15 +647,18 @@
                     <p>Prestataires sélectionnés : <span id="selectedArtistsCount">0</span> / <span id="displayMaxCount">3</span></p>
                 </div>
 
-                <button type="submit" class="btn-action">Finaliser et Générer le Reçu →</button>
+                <div class="step-nav-bar">
+                    <button type="button" id="backFromArtistsBtn" class="btn-back-step">← Retour</button>
+                    <button type="submit" id="nextFromArtistsBtn" class="btn-action">Suivant : Générer le Reçu →</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- 6. ÉCRAN DE REÇU FINAL & CHATBOT INTERACTIF -->
+    <!-- 6. ÉCRAN DE REÇU FINAL, FEEDBACK & CHATBOT INTERACTIF -->
     <div id="successScreen" class="container hidden">
         <div class="booking-card receipt-card">
-            <div class="success-icon"></div>
+            <div class="success-icon">🎉</div>
             <h2>Commande Réussie !</h2>
             <p class="receipt-subtitle">Veuillez faire une <strong>capture d'écran</strong> de cette page comme preuve officielle de votre dépôt.</p>
             
@@ -566,12 +672,28 @@
                 <p><strong>Options achetées (Budget Achats) :</strong> <span id="finalRecapOptions">Aucune</span></p>
                 <p><strong>Artistes assignés :</strong> <span id="finalRecapArtists">Aucun</span></p>
                 <div class="recap-divider"></div>
-                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Déposé :</strong> <span id="finalRecapAmount">50</span> $ (Solde sur place : <span id="finalRecapBalance">50</span> $)</p>
+                <p class="deposit-text" style="font-size: 1.1rem; text-align: center;"><strong>Acompte Déposé :</strong> <span id="finalRecapAmount">0.00</span> $ (Solde sur place : <span id="finalRecapBalance">0.00</span> $)</p>
             </div>
 
             <div class="touching-message">
-                <p> <strong>Vous venez de décider de décrocher un sourire...</strong></p>
+                <p><strong>Vous venez de décider de décrocher un sourire...</strong></p>
                 <p>Merci du fond du cœur de faire confiance à notre équipe et à <strong>JOHNS</strong>. Nous mettons tout notre cœur pour transformer votre événement en un moment inoubliable.</p>
+            </div>
+
+            <!-- Feedback client -->
+            <div class="feedback-box">
+                <p><strong>⭐ Votre avis compte pour Smile with me :</strong></p>
+                <div style="display:flex; gap:8px; margin:8px 0;">
+                    <select id="feedbackRating" class="form-select" style="padding:8px 10px; font-size:0.85rem;">
+                        <option value="5 ⭐ — Excellent">5 ⭐ — Excellent</option>
+                        <option value="4 ⭐ — Très bien">4 ⭐ — Très bien</option>
+                        <option value="3 ⭐ — Bien">3 ⭐ — Bien</option>
+                        <option value="À améliorer">À améliorer</option>
+                    </select>
+                </div>
+                <textarea id="feedbackComment" placeholder="Un mot sur votre expérience ou une suggestion pour JOHNS et l'équipe..." style="min-height:60px; font-size:0.84rem;"></textarea>
+                <button type="button" id="sendFeedbackBtn" class="btn-action" style="margin-top:8px; padding:9px 16px; font-size:0.86rem;">Envoyer mon feedback 💬</button>
+                <p id="feedbackStatusMsg" style="margin-top:6px; font-size:0.8rem; color:#28a745; font-weight:600;"></p>
             </div>
 
             <!-- CHATBOT INTERACTIF INTÉGRÉ -->
@@ -579,19 +701,24 @@
                 <div class="chatbot-header">
                     <span class="chatbot-title">🤖 Assistant Smile with me (Live)</span>
                 </div>
+                <div class="chatbot-quick-prompts">
+                    <button type="button" class="quick-prompt-btn" data-prompt="Quel est le délai minimum et comment fonctionne l'acompte ?">Délai & Acompte</button>
+                    <button type="button" class="quick-prompt-btn" data-prompt="Comment contacter JOHNS ou demander une rétractation ?">Contact & Rétractation</button>
+                    <button type="button" class="quick-prompt-btn" data-prompt="Quelles options sont disponibles pour mon événement ?">Options & Velouté</button>
+                </div>
                 <div id="chatMessages" class="chatbot-messages">
                     <div class="bot-msg">Bonjour ! Je suis l'assistant virtuel Smile with me. Comment puis-je vous aider concernant votre réservation ?</div>
                 </div>
                 <div class="chatbot-input-area">
                     <input type="text" id="chatInput" placeholder="Posez votre question ici...">
-                    <button id="sendChatBtn" class="btn-chat-send">Envoyer</button>
+                    <button type="button" id="sendChatBtn" class="btn-chat-send">Envoyer</button>
                 </div>
             </div>
 
             <div class="action-buttons-group">
-                <button id="downloadPdfBtn" class="btn-action btn-pdf">📥 Télécharger le vrai PDF officiel (Imprimer)</button>
-                <a id="whatsappBtn" href="#" target="_blank" class="btn-action btn-whatsapp">💬 Envoyer la preuve sur WhatsApp</a>
-                <button id="restartBtn" class="btn-action" style="margin-top: 10px;">Nouvelle Réservation </button>
+                <button type="button" id="downloadPdfBtn" class="btn-action btn-pdf">📥 Télécharger le vrai PDF officiel (Imprimer)</button>
+                <a id="whatsappBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn-action btn-whatsapp">💬 Envoyer la preuve sur WhatsApp</a>
+                <button type="button" id="restartBtn" class="btn-action" style="margin-top: 10px;">Nouvelle Réservation</button>
             </div>
         </div>
     </div>
@@ -601,29 +728,30 @@
         <div class="admin-content">
             <div class="admin-header">
                 <h2>Back-Office Administrateur</h2>
-                <button id="closeAdminBtn" class="btn-close-admin">✖</button>
+                <button type="button" id="closeAdminBtn" class="btn-close-admin">✖</button>
             </div>
             
             <div id="adminAuthBox" class="form-group" style="margin-top: 20px;">
                 <label for="adminPin">Entrez le Code PIN administrateur :</label>
-                <input type="password" id="adminPin" placeholder="••••" maxlength="4" class="form-group input" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
-                <button id="authAdminBtn" class="btn-action" style="margin-top: 10px;">Se connecter</button>
+                <input type="password" id="adminPin" placeholder="••••" maxlength="4" style="text-align: center; letter-spacing: 4px; font-size: 1.2rem;">
+                <button type="button" id="authAdminBtn" class="btn-action" style="margin-top: 10px;">Se connecter</button>
             </div>
 
             <div id="adminDashboard" class="hidden">
-                <div class="admin-nav-buttons">
-                    <button id="showHistoryBtn" class="btn-action" style="padding: 10px; font-size: 0.9rem;">📋 Historique</button>
-                    <button id="showTeamBtn" class="btn-action" style="padding: 10px; font-size: 0.9rem; background: #28a745;">👥 Équipe & Salaires</button>
+                <div class="admin-nav-buttons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button type="button" id="showHistoryBtn" class="btn-action" style="padding: 10px; font-size: 0.85rem;">📋 Historique</button>
+                    <button type="button" id="showTeamBtn" class="btn-action" style="padding: 10px; font-size: 0.85rem; background: #28a745;">👥 Équipe</button>
+                    <button type="button" id="showCalcBtn" class="btn-action" style="padding: 10px; font-size: 0.85rem; background: #0072CE;">🧮 Calculatrice</button>
                 </div>
 
                 <!-- Section Historique -->
                 <div id="adminHistorySection" style="margin-top: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <p style="color: #28a745; font-weight: 600; margin: 0;">✅ Historique et Répartition :</p>
-                        <button id="exportCsvBtn" class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.75rem; background: #0072CE;">📥 Exporter CSV</button>
+                        <button type="button" id="exportCsvBtn" class="btn-action" style="width: auto; padding: 6px 12px; font-size: 0.75rem; background: #0072CE;">📥 Exporter CSV</button>
                     </div>
                     <div id="reservationsList" class="reservations-container"></div>
-                    <button id="clearDataBtn" class="btn-action" style="background: #dc3545; margin-top: 15px;">Effacer l'historique</button>
+                    <button type="button" id="clearDataBtn" class="btn-action" style="background: #dc3545; margin-top: 15px;">Effacer l'historique</button>
                 </div>
 
                 <!-- Section Annuaire Équipe -->
@@ -631,6 +759,68 @@
                     <p style="color: #FFB800; font-weight: 600; margin-bottom: 10px;">👥 Annuaire & Paiement Mobile Money par Membre :</p>
                     <p style="font-size: 0.78rem; color: #94A3B8; margin-bottom: 12px;">Le montant à verser pour les prestations du jour s'affiche en premier, suivi du total cumulé de toutes les prestations.</p>
                     <div class="reservations-container" style="max-height: 48vh;" id="teamDirectoryContainer"></div>
+                </div>
+
+                <!-- Section Calculatrice Rapide & Multi-Devises -->
+                <div id="adminCalcSection" class="hidden" style="margin-top: 15px;">
+                    <p style="color: #FFB800; font-weight: 600; margin-bottom: 8px;">🧮 Calculatrice Rapide & Multi-Devises (Repère 500 000 FC)</p>
+
+                    <div style="background: rgba(13, 17, 23, 0.85); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                            <label for="calcCurrency" style="font-size: 0.8rem; color: #94A3B8; margin: 0;">Devise active :</label>
+                            <select id="calcCurrency" style="padding: 5px 8px; border-radius: 6px; background: #1a2332; color: #fff; border: 1px solid #334155; font-size: 0.82rem;">
+                                <option value="USD">USD ($)</option>
+                                <option value="CDF">Franc Congolais (FC / CDF)</option>
+                                <option value="EUR">Euro (€)</option>
+                                <option value="ZAR">Rand Sud-Africain (R / ZAR)</option>
+                                <option value="XAF">Franc CFA (FCFA)</option>
+                            </select>
+
+                            <label for="cdfPerUsdRate" style="font-size: 0.8rem; color: #94A3B8; margin: 0;">1 $ =</label>
+                            <input type="number" id="cdfPerUsdRate" value="2800" min="1" step="any" style="width: 85px; padding: 5px 8px; border-radius: 6px; background: #1a2332; color: #FFB800; border: 1px solid #334155; font-size: 0.82rem; font-weight: 700;">
+                            <span style="font-size: 0.8rem; color: #94A3B8;">FC</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.78rem; color: #94A3B8;">
+                            <span>Taux vs $ (1 $ = X devise) :</span>
+                            <input type="number" id="foreignRatePerUsd" value="0.92" min="0.0001" step="any" style="width: 85px; padding: 4px 8px; border-radius: 6px; background: #1a2332; color: #00A8FF; border: 1px solid #334155; font-size: 0.8rem; font-weight: 600;">
+                            <button type="button" id="preset500kCdfBtn" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #FFB800; background: rgba(255,184,0,0.15); color: #FFB800; font-size: 0.78rem; font-weight: 600; cursor: pointer;">500 000 FC</button>
+                            <button type="button" id="split50CalcBtn" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #28a745; background: rgba(40,167,69,0.15); color: #28a745; font-size: 0.78rem; font-weight: 600; cursor: pointer;">50 % Acompte</button>
+                        </div>
+                    </div>
+
+                    <input type="text" id="calcExprDisplay" readonly value="0" style="width: 100%; box-sizing: border-box; text-align: right; font-size: 0.82rem; color: #94A3B8; background: #0d1117; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px 8px 0 0; padding: 6px 10px;">
+                    <input type="text" id="calcMainDisplay" readonly value="0" style="width: 100%; box-sizing: border-box; text-align: right; font-size: 1.35rem; font-weight: 700; color: #28a745; background: #0d1117; border: 1px solid rgba(255,255,255,0.12); border-top: none; border-radius: 0 0 8px 8px; padding: 8px 10px; margin-bottom: 10px;">
+
+                    <div id="calcConversionsBox" style="background: rgba(26, 35, 50, 0.75); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; font-size: 0.8rem; color: #E2E8F0;">
+                        Équivalences : <strong>0.00 $</strong> | <strong>0 FC</strong> | <strong>0.00 autre devise</strong>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                        <button type="button" class="calc-key" data-calc="C" style="padding: 10px; border-radius: 8px; border: none; background: #dc3545; color: #fff; font-weight: 700; cursor: pointer;">C</button>
+                        <button type="button" class="calc-key" data-calc="BACK" style="padding: 10px; border-radius: 8px; border: none; background: #334155; color: #fff; font-weight: 700; cursor: pointer;">⌫</button>
+                        <button type="button" class="calc-key" data-calc="%" style="padding: 10px; border-radius: 8px; border: none; background: #334155; color: #FFB800; font-weight: 700; cursor: pointer;">%</button>
+                        <button type="button" class="calc-key" data-calc="/" style="padding: 10px; border-radius: 8px; border: none; background: #0072CE; color: #fff; font-weight: 700; cursor: pointer;">÷</button>
+
+                        <button type="button" class="calc-key" data-calc="7" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">7</button>
+                        <button type="button" class="calc-key" data-calc="8" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">8</button>
+                        <button type="button" class="calc-key" data-calc="9" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">9</button>
+                        <button type="button" class="calc-key" data-calc="*" style="padding: 10px; border-radius: 8px; border: none; background: #0072CE; color: #fff; font-weight: 700; cursor: pointer;">×</button>
+
+                        <button type="button" class="calc-key" data-calc="4" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">4</button>
+                        <button type="button" class="calc-key" data-calc="5" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">5</button>
+                        <button type="button" class="calc-key" data-calc="6" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">6</button>
+                        <button type="button" class="calc-key" data-calc="-" style="padding: 10px; border-radius: 8px; border: none; background: #0072CE; color: #fff; font-weight: 700; cursor: pointer;">−</button>
+
+                        <button type="button" class="calc-key" data-calc="1" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">1</button>
+                        <button type="button" class="calc-key" data-calc="2" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">2</button>
+                        <button type="button" class="calc-key" data-calc="3" style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">3</button>
+                        <button type="button" class="calc-key" data-calc="+" style="padding: 10px; border-radius: 8px; border: none; background: #0072CE; color: #fff; font-weight: 700; cursor: pointer;">+</button>
+
+                        <button type="button" class="calc-key" data-calc="0" style="grid-column: span 2; padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">0</button>
+                        <button type="button" class="calc-key" data-calc="." style="padding: 10px; border-radius: 8px; border: none; background: #1e293b; color: #fff; font-weight: 600; cursor: pointer;">.</button>
+                        <button type="button" class="calc-key" data-calc="=" style="padding: 10px; border-radius: 8px; border: none; background: #28a745; color: #fff; font-weight: 700; cursor: pointer;">=</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -655,6 +845,13 @@
         const downloadPdfBtn = document.getElementById('downloadPdfBtn');
         const whatsappBtn = document.getElementById('whatsappBtn');
 
+        // Boutons Retour sur chaque écran
+        const backFromBookingBtn = document.getElementById('backFromBookingBtn');
+        const backFromOptionsBtn = document.getElementById('backFromOptionsBtn');
+        const backFromSummaryBtn = document.getElementById('backFromSummaryBtn');
+        const backFromPaymentBtn = document.getElementById('backFromPaymentBtn');
+        const backFromArtistsBtn = document.getElementById('backFromArtistsBtn');
+
         const openClientSpaceBtn = document.getElementById('openClientSpaceBtn');
         const closeClientSpaceBtn = document.getElementById('closeClientSpaceBtn');
         const clientSpaceScreen = document.getElementById('clientSpaceScreen');
@@ -670,10 +867,48 @@
 
         let currentUser = { name: '', email: '' };
         let currentOrderData = {};
-        const basePrestationPrice = 100;
-        const prestationDepositAmount = basePrestationPrice / 2; // 50 $ encaissés maintenant
-        const prestationBalanceAmount = basePrestationPrice / 2; // 50 $ à encaisser sur place
-        let pendingOrderAmount = prestationDepositAmount;
+
+        // Tarif de prestation libre (plus de montant fixe de 100 $)
+        let proposedPrestationPrice = 0;
+        let prestationDepositAmount = 0;
+        let prestationBalanceAmount = 0;
+        let pendingOrderAmount = 0;
+
+        // Fonctions d'affichage des dates en Jour / Mois / Année (JJ/MM/AAAA)
+        function formatIsoDateToJma(isoDateStr) {
+            if (!isoDateStr) return '';
+            const match = String(isoDateStr).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (match) {
+                return `${match[3]}/${match[2]}/${match[1]}`;
+            }
+            const frMatch = String(isoDateStr).trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (frMatch) {
+                return `${frMatch[1]}/${frMatch[2]}/${frMatch[3]}`;
+            }
+            return String(isoDateStr);
+        }
+
+        function formatDateTimeInputToJma(rawDateStr) {
+            if (!rawDateStr) return '-';
+            const str = String(rawDateStr).trim();
+            const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s]+(?:à\s+)?(\d{2}:\d{2}(?::\d{2})?))?/);
+            if (isoMatch) {
+                const jma = `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+                return isoMatch[4] ? `${jma} à ${isoMatch[4]}` : jma;
+            }
+            return str.replace('T', ' à ');
+        }
+
+        function formatNowJma() {
+            const d = new Date();
+            const jj = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const aaaa = d.getFullYear();
+            const hh = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            const ss = String(d.getSeconds()).padStart(2, '0');
+            return `${jj}/${mm}/${aaaa} ${hh}:${min}:${ss}`;
+        }
 
         const teamMembersData = [
             { id: 1, name: 'JOHNS', role: 'Administration & Supervision', weight: 0.20, justification: 'Supervision générale, gestion de la plateforme et de la structure.', mpesa: '+243832112968', airtel: '+243970037868', orange: '+243844584375' },
@@ -687,18 +922,143 @@
             { id: 9, name: 'Tegra', role: 'Violoniste', weight: 0.08, justification: 'Prestation instrumentale (violon) pour les événements.', mpesa: '+243821000009', airtel: '+243971756828', orange: '+243851000009' }
         ];
 
-        // Extrait la part partagée d'une commande (50% de la prestation encaissé, hors achats boutique)
+        // Navigation fluide entre écrans sans perdre les saisies
+        function navigateToScreen(fromEl, toEl) {
+            if (!fromEl || !toEl) return;
+            fromEl.style.opacity = '0';
+            setTimeout(() => {
+                fromEl.classList.add('hidden');
+                toEl.classList.remove('hidden');
+                toEl.style.opacity = '1';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 220);
+        }
+
+        backFromBookingBtn.addEventListener('click', () => {
+            document.getElementById('bg-video').style.display = 'none';
+            navigateToScreen(bookingScreen, loginScreen);
+        });
+
+        backFromOptionsBtn.addEventListener('click', () => {
+            navigateToScreen(optionsScreen, bookingScreen);
+        });
+
+        backFromSummaryBtn.addEventListener('click', () => {
+            navigateToScreen(summaryScreen, optionsScreen);
+        });
+
+        backFromPaymentBtn.addEventListener('click', () => {
+            navigateToScreen(paymentScreen, summaryScreen);
+        });
+
+        backFromArtistsBtn.addEventListener('click', () => {
+            navigateToScreen(artistsScreen, paymentScreen);
+        });
+
+        // Créneaux de référence + réservations enregistrées, triés et affichés sur 4 colonnes
+        const defaultReservedSlots = [
+            { date: '2027-01-01', time: '03:04', eventType: 'DEMANDE' },
+            { date: '2027-01-01', time: '12:02', eventType: 'VIP' },
+            { date: '2027-01-01', time: '12:07', eventType: 'VIP' },
+            { date: '2027-01-01', time: '12:08', eventType: 'DEMANDE' },
+            { date: '2027-01-01', time: '12:34', eventType: 'FAMILLE' },
+            { date: '2027-01-01', time: '23:03', eventType: 'DEMANDE' },
+            { date: '2027-01-01', time: '23:04', eventType: 'ANNIVERSAIRE' },
+            { date: '2027-01-02', time: '12:30', eventType: 'ANNIVERSAIRE' },
+            { date: '2027-01-03', time: '12:30', eventType: 'ANNIVERSAIRE' },
+            { date: '2027-01-08', time: '04:03', eventType: 'DEMANDE' },
+            { date: '2027-01-08', time: '09:00', eventType: 'VIP' },
+            { date: '2027-01-11', time: '01:01', eventType: 'DEMANDE' },
+            { date: '2027-01-11', time: '11:02', eventType: 'FAMILLE' },
+            { date: '2027-01-11', time: '11:04', eventType: 'DEMANDE' },
+            { date: '2027-02-01', time: '20:07', eventType: 'MARIAGE' }
+        ];
+
+        function parseOrderDateTime(rawDateStr) {
+            if (!rawDateStr) return null;
+            const str = String(rawDateStr).trim();
+            const isoMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s]+(?:à\s+)?(\d{2}:\d{2}))?/);
+            if (isoMatch) {
+                return {
+                    date: `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`,
+                    time: isoMatch[4] || '00:00'
+                };
+            }
+            const jmaMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:[T\s]+(?:à\s+)?(\d{2}:\d{2}))?/);
+            if (jmaMatch) {
+                return {
+                    date: `${jmaMatch[3]}-${jmaMatch[2]}-${jmaMatch[1]}`,
+                    time: jmaMatch[4] || '00:00'
+                };
+            }
+            return null;
+        }
+
+        function getOrderedBookedSlots() {
+            const savedOrders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
+            const fromOrders = savedOrders.map((ord) => {
+                const parsed = parseOrderDateTime(ord.date);
+                if (!parsed) return null;
+                return {
+                    date: parsed.date,
+                    time: parsed.time,
+                    eventType: (ord.eventType || 'ÉVÉNEMENT').toUpperCase()
+                };
+            }).filter(Boolean);
+
+            const combined = [...defaultReservedSlots, ...fromOrders];
+            const uniqueMap = new Map();
+
+            combined.forEach((slot) => {
+                const key = `${slot.date}__${slot.time}__${slot.eventType}`;
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, slot);
+                }
+            });
+
+            return Array.from(uniqueMap.values()).sort((a, b) => {
+                const dtA = new Date(`${a.date}T${a.time}:00`).getTime();
+                const dtB = new Date(`${b.date}T${b.time}:00`).getTime();
+                if (dtA !== dtB) return dtA - dtB;
+                return a.eventType.localeCompare(b.eventType, 'fr');
+            });
+        }
+
+        function renderBookedDates4Cols() {
+            const gridEl = document.getElementById('bookedDatesGrid4');
+            const badgeEl = document.getElementById('bookedDatesCountBadge');
+            if (!gridEl) return;
+
+            const slots = getOrderedBookedSlots();
+            if (badgeEl) {
+                badgeEl.textContent = `${slots.length} créneau${slots.length > 1 ? 'x' : ''}`;
+            }
+
+            if (slots.length === 0) {
+                gridEl.innerHTML = `<div class="booked-slot-empty" style="grid-column: span 4;">Aucune date réservée pour l'instant : toutes les autres dates sont libres.</div>`;
+                return;
+            }
+
+            gridEl.innerHTML = slots.map((s) => `
+                <div class="booked-slot-card">
+                    <span class="booked-slot-date">${formatIsoDateToJma(s.date)}</span>
+                    <span class="booked-slot-meta">${s.time} · ${s.eventType}</span>
+                </div>
+            `).join('');
+        }
+
+        // Extrait la part partagée d'une commande (50% de la prestation proposée encaissé, hors achats boutique)
         function getOrderBreakdown(ord) {
             const totalPaid = Number(ord.amount) || 0;
             const achatsAmount = (typeof ord.optionsTotal === 'number')
                 ? Number(ord.optionsTotal)
-                : Math.max(0, totalPaid - prestationDepositAmount);
+                : 0;
             const shareablePrestation = (typeof ord.prestationDeposit === 'number')
                 ? Number(ord.prestationDeposit)
                 : Math.max(0, totalPaid - achatsAmount);
             const balanceOnSite = (typeof ord.prestationBalanceDue === 'number')
                 ? Number(ord.prestationBalanceDue)
-                : prestationBalanceAmount;
+                : 0;
 
             const shareSmile = shareablePrestation * 0.15;
             const remainingAfterSmile = shareablePrestation * 0.85;
@@ -729,6 +1089,7 @@
             currentUser.email = document.getElementById('userEmail').value.trim();
 
             document.getElementById('bg-video').style.display = 'block';
+            renderBookedDates4Cols();
 
             loginScreen.style.opacity = '0';
             setTimeout(() => {
@@ -755,8 +1116,8 @@
                     card.innerHTML = `
                         <p><strong>Commande #${index + 1}</strong> — <span style="color:#FFB800;">${ord.eventType || 'Événement'}</span></p>
                         <p>Lieu : ${ord.location || '-'}</p>
-                        <p>Date : ${ord.date || '-'}</p>
-                        <p>Acompte payé : <strong style="color:#28a745;">${ord.amount || prestationDepositAmount} $</strong></p>
+                        <p>Date : ${formatDateTimeInputToJma(ord.date)}</p>
+                        <p>Acompte payé : <strong style="color:#28a745;">${Number(ord.amount || 0).toFixed(2)} $</strong></p>
                     `;
                     clientOrdersList.appendChild(card);
                 });
@@ -857,7 +1218,7 @@
             renewalStatusMsg.style.color = "#28a745";
             renewalStatusMsg.textContent = "✅ Contrat renouvelé avec succès pour 1 an ! Compte à rebours relancé.";
 
-            sendAdminWhatsAppAlert(`🔄 RENOUVELLEMENT DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Renouvellement validé pour 1 an (365 jours).\nDate : ${new Date().toLocaleString()}`);
+            sendAdminWhatsAppAlert(`🔄 RENOUVELLEMENT DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Renouvellement validé pour 1 an (365 jours).\nDate : ${formatNowJma()}`);
         });
 
         endContractBtn.addEventListener('click', () => {
@@ -866,7 +1227,7 @@
             renewalStatusMsg.textContent = "🛑 Demande de fin de contrat enregistrée à l'échéance.";
             renewalStatusMsg.style.color = "#dc3545";
 
-            sendAdminWhatsAppAlert(`🛑 FIN DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Souhaite terminer son contrat à l'échéance.\nDate : ${new Date().toLocaleString()}`);
+            sendAdminWhatsAppAlert(`🛑 FIN DE CONTRAT — Smile with me\n\nPrestataire : ${workerName}\nDécision : Souhaite terminer son contrat à l'échéance.\nDate : ${formatNowJma()}`);
         });
 
         function initSignatureCanvas() {
@@ -910,7 +1271,7 @@
                 const workerName = document.getElementById('userName').value.trim() || "Un prestataire";
                 document.getElementById('signatureStatus').textContent = "🔒 Signature électronique validée et scellée avec succès !";
 
-                sendAdminWhatsAppAlert(`✍️ CONTRAT SIGNÉ ET SCELLÉ — Smile with me\n\nPrestataire : ${workerName}\nStatut : Signature électronique validée avec succès.\nDate : ${new Date().toLocaleString()}`);
+                sendAdminWhatsAppAlert(`✍️ CONTRAT SIGNÉ ET SCELLÉ — Smile with me\n\nPrestataire : ${workerName}\nStatut : Signature électronique validée avec succès.\nDate : ${formatNowJma()}`);
             };
         }
 
@@ -919,6 +1280,8 @@
         const eventCitySelect = document.getElementById('eventCity');
         const eventLocationInput = document.getElementById('eventLocation');
         const eventDateInput = document.getElementById('eventDate');
+        const eventDateStatus = document.getElementById('eventDateStatus');
+        const eventBudgetInput = document.getElementById('eventBudget');
 
         eventCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -928,10 +1291,61 @@
             });
         });
 
+        function checkSelectedEventDateAvailability() {
+            if (!eventDateInput || !eventDateStatus || !eventDateInput.value) {
+                if (eventDateStatus) eventDateStatus.classList.add('hidden');
+                return;
+            }
+            const parsed = parseOrderDateTime(eventDateInput.value);
+            if (!parsed) return;
+
+            const jmaDate = formatIsoDateToJma(parsed.date);
+            const booked = getOrderedBookedSlots();
+            const matched = booked.find((b) => b.date === parsed.date && b.time === parsed.time);
+            eventDateStatus.classList.remove('hidden');
+
+            if (matched) {
+                eventDateStatus.classList.remove('available');
+                eventDateStatus.textContent = `⚠️ Ce créneau (${jmaDate} à ${parsed.time} — ${matched.eventType}) est déjà pris : vous pouvez choisir une autre date ou heure.`;
+            } else {
+                eventDateStatus.classList.add('available');
+                eventDateStatus.textContent = `✅ Créneau ${jmaDate} à ${parsed.time} disponible (pensez au délai de 48h minimum).`;
+            }
+        }
+
+        eventDateInput.addEventListener('change', checkSelectedEventDateAvailability);
+
+        function recalculatePrestationFromBudget() {
+            const rawBudget = parseFloat(eventBudgetInput.value);
+            proposedPrestationPrice = (!isNaN(rawBudget) && rawBudget > 0) ? rawBudget : 0;
+            prestationDepositAmount = proposedPrestationPrice / 2;
+            prestationBalanceAmount = proposedPrestationPrice / 2;
+
+            const proposedDisplay = document.getElementById('proposedPrestationDisplay');
+            const depositDisplay = document.getElementById('prestationDepositDisplay');
+            const balanceDisplay = document.getElementById('prestationBalanceDisplay');
+
+            if (proposedDisplay) proposedDisplay.textContent = proposedPrestationPrice.toFixed(2);
+            if (depositDisplay) depositDisplay.textContent = prestationDepositAmount.toFixed(2);
+            if (balanceDisplay) balanceDisplay.textContent = prestationBalanceAmount.toFixed(2);
+
+            if (typeof updateTotals === 'function') {
+                updateTotals();
+            }
+        }
+
+        eventBudgetInput.addEventListener('input', recalculatePrestationFromBudget);
+
         bookingForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if(!eventTypeInput.value) {
                 alert('Veuillez sélectionner un type d\'événement.');
+                return;
+            }
+            recalculatePrestationFromBudget();
+            if (proposedPrestationPrice <= 0) {
+                alert('Veuillez saisir un tarif de prestation supérieur à 0 $.');
+                eventBudgetInput.focus();
                 return;
             }
             bookingScreen.style.opacity = '0';
@@ -946,8 +1360,45 @@
         const totalPriceSpan = document.getElementById('totalPrice');
         const depositPriceSpan = document.getElementById('depositPrice');
         const finalAmountSpan = document.getElementById('depositAmount');
-        let globalDeposit = prestationDepositAmount;
+        let globalDeposit = 0;
         let currentOptionsTotal = 0;
+
+        const gateauCheckbox = document.querySelector('.option-checkbox[data-name="gateau"]');
+        const gateauCustomBox = document.getElementById('gateauCustomBox');
+        const cakeSizePills = document.querySelectorAll('.cake-size-pill');
+        const gateauCustomText = document.getElementById('gateauCustomText');
+        let selectedCakeSize = 'Petit';
+
+        cakeSizePills.forEach((pill) => {
+            pill.addEventListener('click', () => {
+                cakeSizePills.forEach((p) => p.classList.remove('active'));
+                pill.classList.add('active');
+                selectedCakeSize = pill.getAttribute('data-size') || 'Petit';
+            });
+        });
+
+        const autreCheckbox = document.querySelector('.option-checkbox[data-name="autre"]');
+        const autreDetailsBox = document.getElementById('autreDetailsBox');
+        const autreCustomText = document.getElementById('autreCustomText');
+        const searchOtherWebBtn = document.getElementById('searchOtherWebBtn');
+        const autreSearchHint = document.getElementById('autreSearchHint');
+
+        function getFormattedOptionLabel(item) {
+            const baseTitle = item.querySelector('.opt-text').textContent;
+            const optKey = item.getAttribute('data-option');
+
+            if (optKey === 'gateau') {
+                const customNote = gateauCustomText ? gateauCustomText.value.trim() : '';
+                const cakeSpec = customNote ? `Taille ${selectedCakeSize}, ${customNote}` : `Taille ${selectedCakeSize}`;
+                return `${baseTitle} (${cakeSpec})`;
+            }
+
+            if (optKey === 'autre') {
+                const detail = autreCustomText ? autreCustomText.value.trim() : '';
+                return detail ? `${baseTitle} — ${detail}` : baseTitle;
+            }
+            return baseTitle;
+        }
 
         optionItems.forEach(item => {
             const checkbox = item.querySelector('.option-checkbox');
@@ -962,6 +1413,12 @@
             checkbox.addEventListener('change', () => {
                 if (checkbox.checked) {
                     pillsContainer.classList.remove('hidden');
+                    if (optionKey === 'gateau' && gateauCustomBox) {
+                        gateauCustomBox.classList.remove('hidden');
+                    }
+                    if (optionKey === 'autre' && autreDetailsBox) {
+                        autreDetailsBox.classList.remove('hidden');
+                    }
                     let activePill = item.querySelector('.price-pill.active');
                     if (!activePill) {
                         pills[0].classList.add('active');
@@ -972,6 +1429,18 @@
                     pillsContainer.classList.add('hidden');
                     pills.forEach(p => p.classList.remove('active'));
                     previewContainer.classList.add('hidden');
+                    if (optionKey === 'gateau' && gateauCustomBox) {
+                        gateauCustomBox.classList.add('hidden');
+                        if (gateauCustomText) gateauCustomText.value = '';
+                    }
+                    if (optionKey === 'autre' && autreDetailsBox) {
+                        autreDetailsBox.classList.add('hidden');
+                        if (autreCustomText) autreCustomText.value = '';
+                        if (autreSearchHint) {
+                            autreSearchHint.style.color = '#94A3B8';
+                            autreSearchHint.textContent = 'Saisissez ce que vous cherchez puis cliquez sur « Chercher sur le net » pour ouvrir une recherche dans un nouvel onglet.';
+                        }
+                    }
                     item.selectedPrice = 0;
                 }
                 updateTotals();
@@ -987,6 +1456,26 @@
                 });
             });
         });
+
+        if (searchOtherWebBtn && autreCustomText) {
+            searchOtherWebBtn.addEventListener('click', () => {
+                const queryText = autreCustomText.value.trim();
+                if (!queryText) {
+                    if (autreSearchHint) {
+                        autreSearchHint.style.color = '#FFB800';
+                        autreSearchHint.textContent = 'Écrivez d\'abord ce que vous cherchez (ex: velouté ou modèle) avant de lancer la recherche.';
+                    }
+                    autreCustomText.focus();
+                    return;
+                }
+                if (autreSearchHint) {
+                    autreSearchHint.style.color = '#28a745';
+                    autreSearchHint.textContent = `Recherche ouverte sur le net pour : « ${queryText} ».`;
+                }
+                const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(queryText)}`;
+                window.open(googleUrl, '_blank', 'noopener,noreferrer');
+            });
+        }
 
         function updateItemPreview(optionKey, priceVal, container, imgElement) {
             imgElement.src = `/images/${optionKey}_${priceVal}.png`;
@@ -1004,14 +1493,17 @@
 
             totalPriceSpan.textContent = currentOptionsTotal;
             globalDeposit = prestationDepositAmount + currentOptionsTotal;
-            depositPriceSpan.textContent = globalDeposit;
-            finalAmountSpan.value = globalDeposit + ' $';
+            depositPriceSpan.textContent = globalDeposit.toFixed(2);
+            finalAmountSpan.value = globalDeposit.toFixed(2) + ' $';
             pendingOrderAmount = globalDeposit;
         }
 
         const recapEvent = document.getElementById('recapEvent');
         const recapLocation = document.getElementById('recapLocation');
         const recapDate = document.getElementById('recapDate');
+        const recapPrestationTotal = document.getElementById('recapPrestationTotal');
+        const recapPrestationDeposit = document.getElementById('recapPrestationDeposit');
+        const recapPrestationBalance = document.getElementById('recapPrestationBalance');
         const recapOptionsList = document.getElementById('recapOptionsList');
         const recapOptionsTotal = document.getElementById('recapOptionsTotal');
         const recapGlobalDeposit = document.getElementById('recapGlobalDeposit');
@@ -1021,18 +1513,22 @@
 
         optionsForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            recalculatePrestationFromBudget();
 
             recapEvent.textContent = eventTypeInput.value.toUpperCase();
             recapLocation.textContent = `${eventCitySelect.value} - ${eventLocationInput.value}`;
-            recapDate.textContent = eventDateInput.value.replace('T', ' à ');
+            recapDate.textContent = formatDateTimeInputToJma(eventDateInput.value);
+            recapPrestationTotal.textContent = proposedPrestationPrice.toFixed(2);
+            recapPrestationDeposit.textContent = prestationDepositAmount.toFixed(2);
+            recapPrestationBalance.textContent = prestationBalanceAmount.toFixed(2);
             recapOptionsTotal.textContent = currentOptionsTotal;
-            recapGlobalDeposit.textContent = globalDeposit;
+            recapGlobalDeposit.textContent = globalDeposit.toFixed(2);
 
             let selectedOptsText = [];
             optionItems.forEach(item => {
                 const checkbox = item.querySelector('.option-checkbox');
                 if (checkbox.checked) {
-                    const title = item.querySelector('.opt-text').textContent;
+                    const title = getFormattedOptionLabel(item);
                     selectedOptsText.push(`${title} (${item.selectedPrice} $)`);
                 }
             });
@@ -1076,7 +1572,34 @@
         const cardFieldsGroup = document.getElementById('cardFieldsGroup');
         const xbetForm = document.getElementById('xbetForm');
         const depositErrorMsg = document.getElementById('depositErrorMsg');
+        const phoneCountrySelect = document.getElementById('phoneCountrySelect');
+        const quickPhoneChips = document.querySelectorAll('.quick-phone-chip');
         let selectedOperator = '';
+
+        if (phoneCountrySelect && clientAccountPhone) {
+            phoneCountrySelect.addEventListener('change', () => {
+                const prefix = phoneCountrySelect.value;
+                const sample = phoneCountrySelect.options[phoneCountrySelect.selectedIndex]?.getAttribute('data-sample') || '';
+                if (!clientAccountPhone.value.trim()) {
+                    clientAccountPhone.value = prefix + ' ';
+                } else if (sample) {
+                    clientAccountPhone.value = sample;
+                }
+                depositErrorMsg.classList.add('hidden');
+                clientAccountPhone.focus();
+            });
+        }
+
+        quickPhoneChips.forEach((chip) => {
+            chip.addEventListener('click', () => {
+                const num = chip.getAttribute('data-phone') || '';
+                if (clientAccountPhone && num) {
+                    clientAccountPhone.value = num;
+                    depositErrorMsg.classList.add('hidden');
+                    clientAccountPhone.focus();
+                }
+            });
+        });
 
         paymentCards.forEach(card => {
             card.addEventListener('click', () => {
@@ -1109,6 +1632,32 @@
         const ussdPinInput = document.getElementById('ussdPinInput');
         const ussdValidateBtn = document.getElementById('ussdValidateBtn');
 
+        // Normalise le numéro (enlève espaces, tirets, parenthèses, points et convertit 00 en +)
+        function normalizePhoneNumber(rawPhone) {
+            let cleaned = rawPhone.replace(/[\s\-().]/g, '');
+            if (cleaned.startsWith('00')) {
+                cleaned = '+' + cleaned.slice(2);
+            }
+            return cleaned;
+        }
+
+        // Vérifie si le numéro est un numéro international d'un autre pays (hors +243)
+        function isForeignInternationalNumber(normalizedNum) {
+            return /^\+(?!243)[1-9]\d{6,14}$/.test(normalizedNum);
+        }
+
+        // Vérifie un numéro RDC selon les préfixes de l'opérateur et 9 chiffres après +243 / 243 / 0
+        function isValidRdcOperatorNumber(normalizedNum, prefixes) {
+            const pattern = new RegExp(`^(?:\\+?243|0)?(${prefixes.join('|')})\\d{7}$`);
+            return pattern.test(normalizedNum);
+        }
+
+        const rdcOperatorPrefixes = {
+            Vodacom: { prefixes: ['81', '82', '83', '86'], label: '081/082/083/086' },
+            Airtel:  { prefixes: ['97', '98', '99'],       label: '097/098/099' },
+            Orange:  { prefixes: ['80', '84', '85', '89'], label: '080/084/085/089' }
+        };
+
         xbetForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -1118,31 +1667,22 @@
             }
 
             const phoneVal = clientAccountPhone.value.trim();
+            const normalizedPhone = normalizePhoneNumber(phoneVal);
+            const opConfig = rdcOperatorPrefixes[selectedOperator];
 
-            if (selectedOperator === 'Vodacom') {
-                if (!phoneVal.startsWith('+24381') && !phoneVal.startsWith('+24382') && !phoneVal.startsWith('081') && !phoneVal.startsWith('082')) {
-                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Vodacom (081/082).';
-                    depositErrorMsg.classList.remove('hidden');
-                    return;
-                }
-            } else if (selectedOperator === 'Airtel') {
-                if (!phoneVal.startsWith('+24397') && !phoneVal.startsWith('+24398') && !phoneVal.startsWith('097') && !phoneVal.startsWith('098')) {
-                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Airtel (097/098).';
-                    depositErrorMsg.classList.remove('hidden');
-                    return;
-                }
-            } else if (selectedOperator === 'Orange') {
-                if (!phoneVal.startsWith('+24384') && !phoneVal.startsWith('+24385') && !phoneVal.startsWith('084') && !phoneVal.startsWith('085')) {
-                    depositErrorMsg.textContent = '❌ Erreur : Ce numéro ne correspond pas à Orange (084/085).';
-                    depositErrorMsg.classList.remove('hidden');
-                    return;
-                }
+            const isForeign = isForeignInternationalNumber(normalizedPhone);
+            const isValidRdc = opConfig ? isValidRdcOperatorNumber(normalizedPhone, opConfig.prefixes) : false;
+
+            if (!isForeign && !isValidRdc) {
+                depositErrorMsg.textContent = `❌ Erreur : Saisissez un numéro valide pour ${selectedOperator} (${opConfig ? opConfig.label : 'RDC'}) ou un numéro international complet (ex: +33...).`;
+                depositErrorMsg.classList.remove('hidden');
+                return;
             }
 
             depositErrorMsg.classList.add('hidden');
             
             ussdPopupTitle.textContent = `${selectedOperator} Money — Paiement`;
-            ussdPopupText.innerHTML = `Voulez-vous valider le paiement de <strong style="color:#28a745;">${pendingOrderAmount} $</strong> vers <strong>Smile with me</strong> depuis le <strong>${phoneVal}</strong> ?`;
+            ussdPopupText.innerHTML = `Voulez-vous valider le paiement de <strong style="color:#28a745;">${pendingOrderAmount.toFixed(2)} $</strong> vers <strong>Smile with me</strong> depuis le <strong>${normalizedPhone}</strong> ?`;
             ussdPinInput.value = '';
             ussdStep1.classList.remove('hidden');
             ussdStep2.classList.add('hidden');
@@ -1225,21 +1765,21 @@
 
             const eventType = eventTypeInput.value.toUpperCase();
             const location = `${eventCitySelect.value} - ${eventLocationInput.value}`;
-            const date = eventDateInput.value.replace('T', ' à ');
+            const formattedDate = formatDateTimeInputToJma(eventDateInput.value);
 
             receiptClientName.textContent = currentUser.name;
             receiptClientEmail.textContent = currentUser.email;
             finalRecapEvent.textContent = eventType;
             finalRecapLocation.textContent = location;
-            finalRecapDate.textContent = date;
-            finalRecapAmount.textContent = pendingOrderAmount;
-            finalRecapBalance.textContent = prestationBalanceAmount;
+            finalRecapDate.textContent = formattedDate;
+            finalRecapAmount.textContent = pendingOrderAmount.toFixed(2);
+            finalRecapBalance.textContent = prestationBalanceAmount.toFixed(2);
 
             let selectedOptsArr = [];
             optionItems.forEach(item => {
                 const checkbox = item.querySelector('.option-checkbox');
                 if (checkbox.checked) {
-                    selectedOptsArr.push(item.querySelector('.opt-text').textContent);
+                    selectedOptsArr.push(getFormattedOptionLabel(item));
                 }
             });
             finalRecapOptions.textContent = selectedOptsArr.length > 0 ? selectedOptsArr.join(', ') : 'Aucune';
@@ -1258,21 +1798,23 @@
                 email: currentUser.email,
                 eventType: eventType,
                 location: location,
-                date: date,
+                date: eventDateInput.value,
+                proposedPrestationPrice: proposedPrestationPrice,
                 options: selectedOptsArr,
                 optionsTotal: currentOptionsTotal,
                 prestationDeposit: prestationDepositAmount,
                 prestationBalanceDue: prestationBalanceAmount,
                 artists: selectedArtistsArr,
                 amount: pendingOrderAmount,
-                timestamp: new Date().toLocaleString()
+                timestamp: formatNowJma()
             };
 
             let existingOrders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
             existingOrders.push(orderRecord);
             localStorage.setItem('smile_orders', JSON.stringify(existingOrders));
+            renderBookedDates4Cols();
 
-            const waText = encodeURIComponent(`Bonjour JOHNS, voici la preuve de mon dépôt de ${pendingOrderAmount}$ (dont ${currentOptionsTotal}$ d'articles et ${prestationDepositAmount}$ d'acompte prestation ; reste ${prestationBalanceAmount}$ sur place) pour mon événement (${eventType}) prévu le ${date}. Client: ${currentUser.name}`);
+            const waText = encodeURIComponent(`Bonjour JOHNS, voici la preuve de mon dépôt de ${pendingOrderAmount.toFixed(2)}$ (dont ${currentOptionsTotal}$ d'articles et ${prestationDepositAmount.toFixed(2)}$ d'acompte prestation sur ${proposedPrestationPrice.toFixed(2)}$ proposés ; reste ${prestationBalanceAmount.toFixed(2)}$ sur place) pour mon événement (${eventType}) prévu le ${formattedDate}. Client: ${currentUser.name}`);
             whatsappBtn.href = `https://wa.me/243970037868?text=${waText}`;
 
             artistsScreen.style.opacity = '0';
@@ -1283,9 +1825,36 @@
             }, 300);
         });
 
+        // Feedback client
+        const sendFeedbackBtn = document.getElementById('sendFeedbackBtn');
+        const feedbackRating = document.getElementById('feedbackRating');
+        const feedbackComment = document.getElementById('feedbackComment');
+        const feedbackStatusMsg = document.getElementById('feedbackStatusMsg');
+
+        if (sendFeedbackBtn) {
+            sendFeedbackBtn.addEventListener('click', () => {
+                const comment = feedbackComment ? feedbackComment.value.trim() : '';
+                const rating = feedbackRating ? feedbackRating.value : '5 ⭐';
+                const savedFeedbacks = JSON.parse(localStorage.getItem('smile_feedbacks') || '[]');
+                savedFeedbacks.push({
+                    client: currentUser.name || 'Client',
+                    rating,
+                    comment,
+                    date: formatNowJma()
+                });
+                localStorage.setItem('smile_feedbacks', JSON.stringify(savedFeedbacks));
+                if (feedbackStatusMsg) {
+                    feedbackStatusMsg.textContent = '✅ Merci ! Votre feedback a bien été enregistré pour JOHNS et l\'équipe.';
+                }
+                if (feedbackComment) feedbackComment.value = '';
+            });
+        }
+
+        // Chatbot interactif (avec raccourcis rapides, repli local fiable et appel serveur prêt pour /api/ai-chat)
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendChatBtn = document.getElementById('sendChatBtn');
+        const quickPromptBtns = document.querySelectorAll('.quick-prompt-btn');
 
         function appendMessage(text, sender) {
             const msgDiv = document.createElement('div');
@@ -1295,33 +1864,85 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function handleChatBotResponse(question) {
+        function getLocalBotReply(question) {
             const q = question.toLowerCase();
-            setTimeout(() => {
-                if (q.includes('delai') || q.includes('temps') || q.includes('48h')) {
-                    appendMessage("Nos services requièrent un délai obligatoire de 48h minimum avant l'événement pour coordonner toute l'équipe logistique et artistique.", 'bot');
-                } else if (q.includes('contact') || q.includes('johns') || q.includes('telephone')) {
-                    appendMessage("Vous pouvez joindre directement l'administration (JOHNS) au +243 970 037 868 ou via WhatsApp.", 'bot');
-                } else if (q.includes('acompte') || q.includes('remboursement') || q.includes('payer')) {
-                    appendMessage("Les articles commandés sont réglés à part pour les achats, et la prestation est réglée à 50 % maintenant puis 50 % sur place une fois l'événement terminé.", 'bot');
-                } else {
-                    appendMessage("Merci pour votre message ! JOHNS et son équipe ont bien pris note et vous contacteront rapidement pour les derniers préparatifs.", 'bot');
+            if (q.includes('delai') || q.includes('délai') || q.includes('temps') || q.includes('48h')) {
+                return "Nos services requièrent un délai obligatoire de 48h minimum avant l'événement pour coordonner toute l'équipe logistique et artistique.";
+            }
+            if (q.includes('retract') || q.includes('rétract') || q.includes('annul') || q.includes('contact') || q.includes('johns') || q.includes('telephone') || q.includes('téléphone')) {
+                return "Pour toute demande de rétractation, modification ou suivi, contactez directement JOHNS au +243 970 037 868 ou via le bouton WhatsApp.";
+            }
+            if (q.includes('acompte') || q.includes('remboursement') || q.includes('payer') || q.includes('solde')) {
+                return "Les articles commandés sont réglés intégralement à part pour les achats, et la prestation proposée est réglée à 50 % maintenant puis 50 % sur place une fois l'événement terminé.";
+            }
+            if (q.includes('velout') || q.includes('autre') || q.includes('option') || q.includes('gateau') || q.includes('gâteau')) {
+                return "Vous pouvez sélectionner gâteau (Petit, Moyen, Grand + personnalisation), fleurs, vin, ambiance, feux, ballons, carte ou « Autre (Velouté & articles galerie) » avec recherche web dans la boutique.";
+            }
+            return "Merci pour votre message ! JOHNS et son équipe ont bien pris note et vous accompagneront rapidement pour les préparatifs de votre événement.";
+        }
+
+        async function handleChatBotResponse(question) {
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'bot-msg';
+            thinkingDiv.textContent = '⏳ Réponse en cours...';
+            chatMessages.appendChild(thinkingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const res = await fetch('/api/ai-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: question,
+                        context: {
+                            client: currentUser.name,
+                            eventType: eventTypeInput.value,
+                            location: `${eventCitySelect.value} - ${eventLocationInput.value}`,
+                            date: formatDateTimeInputToJma(eventDateInput.value)
+                        }
+                    })
+                });
+                thinkingDiv.remove();
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.reply) {
+                        appendMessage(data.reply, 'bot');
+                        return;
+                    }
                 }
-            }, 600);
+            } catch (_) {
+                // Repli local instantané en l'absence de route /api/ai-chat sur localhost:4000
+            }
+
+            if (thinkingDiv.parentNode) thinkingDiv.remove();
+            setTimeout(() => {
+                appendMessage(getLocalBotReply(question), 'bot');
+            }, 350);
+        }
+
+        function submitChatText(text) {
+            const cleaned = (text || '').trim();
+            if (!cleaned) return;
+            appendMessage(cleaned, 'user');
+            if (chatInput) chatInput.value = '';
+            handleChatBotResponse(cleaned);
         }
 
         sendChatBtn.addEventListener('click', () => {
-            const text = chatInput.value.trim();
-            if(!text) return;
-            appendMessage(text, 'user');
-            chatInput.value = '';
-            handleChatBotResponse(text);
+            submitChatText(chatInput.value);
         });
 
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendChatBtn.click();
+                e.preventDefault();
+                submitChatText(chatInput.value);
             }
+        });
+
+        quickPromptBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                submitChatText(btn.getAttribute('data-prompt') || btn.textContent);
+            });
         });
 
         downloadPdfBtn.addEventListener('click', () => {
@@ -1351,16 +1972,18 @@
             y += 10;
             doc.text(`Lieu : ${eventCitySelect.value} - ${eventLocationInput.value}`, 20, y);
             y += 10;
-            doc.text(`Date & Heure : ${eventDateInput.value.replace('T', ' à ')}`, 20, y);
+            doc.text(`Date & Heure : ${formatDateTimeInputToJma(eventDateInput.value)}`, 20, y);
             y += 15;
 
             doc.text("Détails financiers & Prestations :", 20, y);
             y += 8;
             doc.setFontSize(10);
             doc.setTextColor(200, 200, 200);
-            doc.text(`- Acompte Global Versé : ${pendingOrderAmount} $ (Articles : ${currentOptionsTotal} $ | Prestation 50% : ${prestationDepositAmount} $)`, 25, y);
+            doc.text(`- Tarif Prestation Proposé : ${proposedPrestationPrice.toFixed(2)} $`, 25, y);
             y += 8;
-            doc.text(`- Solde Prestation (50% sur place) : ${prestationBalanceAmount} $`, 25, y);
+            doc.text(`- Acompte Global Versé : ${pendingOrderAmount.toFixed(2)} $ (Articles : ${currentOptionsTotal} $ | Prestation 50% : ${prestationDepositAmount.toFixed(2)} $)`, 25, y);
+            y += 8;
+            doc.text(`- Solde Prestation (50% sur place) : ${prestationBalanceAmount.toFixed(2)} $`, 25, y);
             y += 8;
             doc.text(`- Responsable Supervision : JOHNS`, 25, y);
             y += 20;
@@ -1385,12 +2008,31 @@
         const adminDashboard = document.getElementById('adminDashboard');
         const showHistoryBtn = document.getElementById('showHistoryBtn');
         const showTeamBtn = document.getElementById('showTeamBtn');
+        const showCalcBtn = document.getElementById('showCalcBtn');
         const adminHistorySection = document.getElementById('adminHistorySection');
         const adminTeamSection = document.getElementById('adminTeamSection');
+        const adminCalcSection = document.getElementById('adminCalcSection');
         const reservationsList = document.getElementById('reservationsList');
         const teamDirectoryContainer = document.getElementById('teamDirectoryContainer');
         const clearDataBtn = document.getElementById('clearDataBtn');
         const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+        function switchAdminTab(tabName) {
+            adminHistorySection.classList.add('hidden');
+            adminTeamSection.classList.add('hidden');
+            adminCalcSection.classList.add('hidden');
+
+            if (tabName === 'history') {
+                adminHistorySection.classList.remove('hidden');
+                loadAdminData();
+            } else if (tabName === 'team') {
+                adminTeamSection.classList.remove('hidden');
+                loadTeamDirectory();
+            } else if (tabName === 'calc') {
+                adminCalcSection.classList.remove('hidden');
+                refreshCalculatorConversions();
+            }
+        }
 
         openAdminBtn.addEventListener('click', () => {
             adminPin.value = '';
@@ -1407,23 +2049,15 @@
             if (adminPin.value === '243') {
                 adminAuthBox.classList.add('hidden');
                 adminDashboard.classList.remove('hidden');
-                loadAdminData();
+                switchAdminTab('history');
             } else {
                 alert('Code PIN administrateur incorrect ');
             }
         });
 
-        showHistoryBtn.addEventListener('click', () => {
-            adminHistorySection.classList.remove('hidden');
-            adminTeamSection.classList.add('hidden');
-            loadAdminData();
-        });
-
-        showTeamBtn.addEventListener('click', () => {
-            adminTeamSection.classList.remove('hidden');
-            adminHistorySection.classList.add('hidden');
-            loadTeamDirectory();
-        });
+        showHistoryBtn.addEventListener('click', () => switchAdminTab('history'));
+        showTeamBtn.addEventListener('click', () => switchAdminTab('team'));
+        showCalcBtn.addEventListener('click', () => switchAdminTab('calc'));
 
         function loadAdminData() {
             let orders = JSON.parse(localStorage.getItem('smile_orders') || '[]');
@@ -1442,7 +2076,7 @@
                 item.innerHTML = `
                     <p><strong>#${index + 1} — ${ord.client}</strong> (${ord.email})</p>
                     <p>Événement : <span style="color:#FFB800;">${ord.eventType}</span> à ${ord.location}</p>
-                    <p>Date : ${ord.date}</p>
+                    <p>Date : ${formatDateTimeInputToJma(ord.date)}</p>
                     <p>Montant Acompte encaissé : <strong style="color:#28a745;">${b.totalPaid.toFixed(2)} $</strong></p>
                     <p style="font-size:0.8rem; color:#FFB800;">🛒 Budget Achats Articles (à part) : <strong>${b.achatsAmount.toFixed(2)} $</strong> | 🎤 Prestation encaissée (50%) : <strong>${b.shareablePrestation.toFixed(2)} $</strong> | ⏳ Solde sur place (50%) : <strong>${b.balanceOnSite.toFixed(2)} $</strong></p>
                     <div class="breakdown-box">
@@ -1463,7 +2097,8 @@
             orders.forEach(ord => {
                 const b = getOrderBreakdown(ord);
                 totalTeamAll += b.shareTeam;
-                if (ord.date && String(ord.date).startsWith(todayStr)) {
+                const parsedOrdDate = parseOrderDateTime(ord.date);
+                if (parsedOrdDate && parsedOrdDate.date === todayStr) {
                     totalTeamDaily += b.shareTeam;
                 }
             });
@@ -1476,7 +2111,7 @@
 
             let headerInfo = document.createElement('div');
             headerInfo.style.cssText = "background: rgba(0,168,255,0.1); border: 1px solid #00A8FF; padding: 10px; border-radius: 8px; margin-bottom: 12px; font-size: 0.82rem;";
-            headerInfo.innerHTML = `📅 <strong>Part Équipe du jour (${todayStr}) :</strong> <span style="color:#28a745; font-weight:700;">${totalTeamDaily.toFixed(2)} $</span> | Cumul global Équipe : <strong>${totalTeamAll.toFixed(2)} $</strong><br>🎪 Dernier événement : <span style="color:#FFB800;">${lastOrder.eventType || 'Aucun'}</span>`;
+            headerInfo.innerHTML = `📅 <strong>Part Équipe du jour (${formatIsoDateToJma(todayStr)}) :</strong> <span style="color:#28a745; font-weight:700;">${totalTeamDaily.toFixed(2)} $</span> | Cumul global Équipe : <strong>${totalTeamAll.toFixed(2)} $</strong><br>🎪 Dernier événement : <span style="color:#FFB800;">${lastOrder.eventType || 'Aucun'}</span>`;
             teamDirectoryContainer.appendChild(headerInfo);
 
             teamMembersData.forEach(member => {
@@ -1506,8 +2141,8 @@
                 }
 
                 let actionBtn = isRestricted
-                    ? `<button onclick="unrestrictMember('${member.name}', '${member.role}')" style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid #28a745; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🔓 Lever la restriction</button>`
-                    : `<button onclick="restrictMember('${member.name}', '${member.role}')" style="background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🚫 Restreindre / Suspendre ce membre</button>`;
+                    ? `<button type="button" onclick="unrestrictMember('${member.name}', '${member.role}')" style="background: rgba(40,167,69,0.2); color: #28a745; border: 1px solid #28a745; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🔓 Lever la restriction</button>`
+                    : `<button type="button" onclick="restrictMember('${member.name}', '${member.role}')" style="background: rgba(220,53,69,0.2); color: #dc3545; border: 1px solid #dc3545; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">🚫 Restreindre / Suspendre ce membre</button>`;
 
                 card.style.cssText = "background: rgba(26, 35, 50, 0.7); border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; margin-bottom: 10px;";
                 card.innerHTML = `
@@ -1520,9 +2155,9 @@
                     <p style="font-size: 0.78rem; color: #b0c4de; margin: 2px 0;">Total de toutes les prestations : <strong>${totalAllFormatted} $</strong></p>
                     <p style="font-size: 0.73rem; color: #94A3B8; margin: 2px 0;">${member.justification}</p>
                     <div class="team-operator-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px;">
-                        <button class="op-btn" onclick="payMember('${member.name}', 'M-Pesa', '${member.mpesa}', ${member.weight})">M-Pesa</button>
-                        <button class="op-btn" onclick="payMember('${member.name}', 'Airtel', '${member.airtel}', ${member.weight})">Airtel</button>
-                        <button class="op-btn" onclick="payMember('${member.name}', 'Orange', '${member.orange}', ${member.weight})">Orange</button>
+                        <button type="button" class="op-btn" onclick="payMember('${member.name}', 'M-Pesa', '${member.mpesa}', ${member.weight})">M-Pesa</button>
+                        <button type="button" class="op-btn" onclick="payMember('${member.name}', 'Airtel', '${member.airtel}', ${member.weight})">Airtel</button>
+                        <button type="button" class="op-btn" onclick="payMember('${member.name}', 'Orange', '${member.orange}', ${member.weight})">Orange</button>
                     </div>
                     <div style="margin-top: 8px; text-align: right;">
                         ${actionBtn}
@@ -1531,6 +2166,128 @@
                 teamDirectoryContainer.appendChild(card);
             });
         }
+
+        // Calculatrice Back-Office (USD, CDF avec repère 500 000 FC, et autres devises)
+        const calcCurrencySelect = document.getElementById('calcCurrency');
+        const cdfPerUsdInput = document.getElementById('cdfPerUsdRate');
+        const foreignRateInput = document.getElementById('foreignRatePerUsd');
+        const preset500kCdfBtn = document.getElementById('preset500kCdfBtn');
+        const split50CalcBtn = document.getElementById('split50CalcBtn');
+        const calcExprDisplay = document.getElementById('calcExprDisplay');
+        const calcMainDisplay = document.getElementById('calcMainDisplay');
+        const calcConversionsBox = document.getElementById('calcConversionsBox');
+        const calcKeys = document.querySelectorAll('.calc-key');
+
+        let calcExpression = '';
+        let calcCurrentValue = '0';
+
+        function getCurrencySymbol(code) {
+            if (code === 'USD') return '$';
+            if (code === 'CDF') return 'FC';
+            if (code === 'EUR') return '€';
+            if (code === 'ZAR') return 'R';
+            if (code === 'XAF') return 'FCFA';
+            return code;
+        }
+
+        function refreshCalculatorConversions() {
+            const numVal = parseFloat(calcCurrentValue);
+            const safeVal = isNaN(numVal) ? 0 : numVal;
+            const activeCurr = calcCurrencySelect.value;
+            const cdfRate = Math.max(1, parseFloat(cdfPerUsdInput.value) || 2800);
+            const otherRate = Math.max(0.0001, parseFloat(foreignRateInput.value) || 1);
+
+            let amountInUsd = safeVal;
+            if (activeCurr === 'CDF') {
+                amountInUsd = safeVal / cdfRate;
+            } else if (activeCurr !== 'USD') {
+                amountInUsd = safeVal / otherRate;
+            }
+
+            const amountInCdf = amountInUsd * cdfRate;
+            const amountInForeign = amountInUsd * otherRate;
+
+            const foreignCode = (activeCurr === 'USD' || activeCurr === 'CDF') ? 'EUR / Autre' : activeCurr;
+            const foreignSym = (activeCurr === 'USD' || activeCurr === 'CDF') ? '' : ' ' + getCurrencySymbol(activeCurr);
+
+            calcConversionsBox.innerHTML = `Équivalences : <strong>${amountInUsd.toFixed(2)} $</strong> | <strong>${Math.round(amountInCdf).toLocaleString('fr-FR')} FC</strong> | <strong>${amountInForeign.toFixed(2)}${foreignSym}</strong> <span style="color:#94A3B8;">(${foreignCode})</span>`;
+        }
+
+        function evaluateCalcExpression(expr) {
+            const sanitized = expr.replace(/[^0-9+\-*/.%() ]/g, '').trim();
+            if (!sanitized) return 0;
+            const withPercent = sanitized.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+            const result = Function(`"use strict"; return (${withPercent})`)();
+            if (typeof result !== 'number' || !isFinite(result)) return 0;
+            return Math.round(result * 10000) / 10000;
+        }
+
+        calcKeys.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const token = btn.getAttribute('data-calc');
+
+                if (token === 'C') {
+                    calcExpression = '';
+                    calcCurrentValue = '0';
+                    calcExprDisplay.value = '0';
+                    calcMainDisplay.value = '0';
+                    refreshCalculatorConversions();
+                    return;
+                }
+
+                if (token === 'BACK') {
+                    calcExpression = calcExpression.slice(0, -1);
+                    calcCurrentValue = calcExpression || '0';
+                    calcExprDisplay.value = calcExpression || '0';
+                    calcMainDisplay.value = calcCurrentValue;
+                    refreshCalculatorConversions();
+                    return;
+                }
+
+                if (token === '=') {
+                    const res = evaluateCalcExpression(calcExpression || calcCurrentValue);
+                    calcExprDisplay.value = (calcExpression || calcCurrentValue) + ' =';
+                    calcCurrentValue = String(res);
+                    calcExpression = String(res);
+                    calcMainDisplay.value = calcCurrentValue;
+                    refreshCalculatorConversions();
+                    return;
+                }
+
+                if (calcCurrentValue === '0' && /[0-9.]/.test(token) && !calcExpression) {
+                    calcExpression = token;
+                } else {
+                    calcExpression += token;
+                }
+                calcCurrentValue = calcExpression;
+                calcExprDisplay.value = calcExpression;
+                calcMainDisplay.value = calcCurrentValue;
+                refreshCalculatorConversions();
+            });
+        });
+
+        preset500kCdfBtn.addEventListener('click', () => {
+            calcCurrencySelect.value = 'CDF';
+            calcExpression = '500000';
+            calcCurrentValue = '500000';
+            calcExprDisplay.value = '500000 FC';
+            calcMainDisplay.value = '500000';
+            refreshCalculatorConversions();
+        });
+
+        split50CalcBtn.addEventListener('click', () => {
+            const currentNum = evaluateCalcExpression(calcExpression || calcCurrentValue);
+            const halfVal = Math.round((currentNum / 2) * 100) / 100;
+            calcExprDisplay.value = `${currentNum} ÷ 2 (50%) =`;
+            calcCurrentValue = String(halfVal);
+            calcExpression = String(halfVal);
+            calcMainDisplay.value = calcCurrentValue;
+            refreshCalculatorConversions();
+        });
+
+        calcCurrencySelect.addEventListener('change', refreshCalculatorConversions);
+        cdfPerUsdInput.addEventListener('input', refreshCalculatorConversions);
+        foreignRateInput.addEventListener('input', refreshCalculatorConversions);
 
         window.restrictMember = function(memberName, memberRole) {
             let motif = prompt(`Entrez le motif de la restriction pour ${memberName} (${memberRole}) :`, "Inactivité ou non-respect des clauses");
@@ -1544,7 +2301,7 @@
 
                 alert(`🚫 Le membre ${memberName} a été restreint avec succès.`);
 
-                sendAdminWhatsAppAlert(`🚫 RESTRICTION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nMotif : ${motif}\nDate : ${new Date().toLocaleString()}\n\nAction effectuée depuis le back-office.`);
+                sendAdminWhatsAppAlert(`🚫 RESTRICTION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nMotif : ${motif}\nDate : ${formatNowJma()}\n\nAction effectuée depuis le back-office.`);
                 
                 loadTeamDirectory();
             }
@@ -1558,7 +2315,7 @@
 
                 alert(`✅ Le membre ${memberName} est de nouveau actif.`);
 
-                sendAdminWhatsAppAlert(`✅ RÉACTIVATION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nStatut : Restriction levée, membre réactivé.\nDate : ${new Date().toLocaleString()}`);
+                sendAdminWhatsAppAlert(`✅ RÉACTIVATION DE MEMBRE — Smile with me\n\nMembre : ${memberName}\nRôle : ${memberRole}\nStatut : Restriction levée, membre réactivé.\nDate : ${formatNowJma()}`);
 
                 loadTeamDirectory();
             }
@@ -1574,7 +2331,8 @@
             orders.forEach(ord => {
                 const b = getOrderBreakdown(ord);
                 totalTeamAll += b.shareTeam;
-                if (ord.date && String(ord.date).startsWith(todayStr)) {
+                const parsedOrdDate = parseOrderDateTime(ord.date);
+                if (parsedOrdDate && parsedOrdDate.date === todayStr) {
                     totalTeamDaily += b.shareTeam;
                 }
             });
@@ -1589,6 +2347,7 @@
             if (confirm('Voulez-vous vraiment effacer tout l\'historique des commandes ?')) {
                 localStorage.removeItem('smile_orders');
                 loadAdminData();
+                renderBookedDates4Cols();
                 alert('Historique effacé avec succès.');
             }
         });
@@ -1603,7 +2362,7 @@
             let csvContent = "data:text/csv;charset=utf-8,Client,Email,Evenement,Lieu,Date,Achats_Articles,Prestation_Encaissee,Solde_Sur_Place,Total_Verse\n";
             orders.forEach(ord => {
                 const b = getOrderBreakdown(ord);
-                csvContent += `"${ord.client}","${ord.email}","${ord.eventType}","${ord.location}","${ord.date}",${b.achatsAmount.toFixed(2)},${b.shareablePrestation.toFixed(2)},${b.balanceOnSite.toFixed(2)},${b.totalPaid.toFixed(2)}\n`;
+                csvContent += `"${ord.client}","${ord.email}","${ord.eventType}","${ord.location}","${formatDateTimeInputToJma(ord.date)}",${b.achatsAmount.toFixed(2)},${b.shareablePrestation.toFixed(2)},${b.balanceOnSite.toFixed(2)},${b.totalPaid.toFixed(2)}\n`;
             });
 
             let encodedUri = encodeURI(csvContent);
